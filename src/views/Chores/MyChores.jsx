@@ -529,10 +529,11 @@ const MyChores = () => {
       onEnableMultiSelectAndSelectAll: () => {
         toggleMultiSelectMode()
         setTimeout(() => {
-          selectAllVisibleChores()
+          selectAllVisibleChores(null, choreSections, openChoreSections)
         }, 0)
       },
-      onSelectAll: () => selectAllVisibleChores(),
+      onSelectAll: () =>
+        selectAllVisibleChores(null, choreSections, openChoreSections),
       onClearSelection: clearSelection,
       onBulkComplete: handleBulkComplete,
       onBulkSkip: handleBulkSkip,
