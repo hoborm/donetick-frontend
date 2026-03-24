@@ -1,18 +1,23 @@
-import { Add, HorizontalRule, Save } from '@mui/icons-material'
+import { Add, ArrowDropDown, HorizontalRule, Save } from '@mui/icons-material'
 import {
   Avatar,
   Box,
   Button,
+  ButtonGroup,
   Card,
   Checkbox,
   Chip,
   Container,
   Divider,
+  Dropdown,
   FormControl,
   FormHelperText,
+  IconButton,
   Input,
   List,
   ListItem,
+  Menu,
+  MenuButton,
   MenuItem,
   Option,
   Radio,
@@ -1638,39 +1643,33 @@ const ChoreEdit = () => {
         }}
       >
         {choreId > 0 && (
-          <>
-            {isActive ? (
+          <Dropdown>
+            <ButtonGroup variant='outlined' color={isActive ? 'danger' : 'neutral'}>
               <Button
+                onClick={() => {
+                  isActive
+                    ? archiveChore.mutate(choreId)
+                    : unarchiveChore.mutate(choreId)
+                }}
+              >
+                {isActive ? 'Archive' : 'Unarchive'}
+              </Button>
+              <MenuButton
+                slots={{ root: IconButton }}
+                slotProps={{ root: { variant: 'outlined', color: isActive ? 'danger' : 'neutral' } }}
+              >
+                <ArrowDropDown />
+              </MenuButton>
+            </ButtonGroup>
+            <Menu placement='top-end'>
+              <MenuItem
                 color='danger'
-                variant='outlined'
-                onClick={() => {
-                  archiveChore.mutate(choreId)
-                }}
+                onClick={handleDelete}
               >
-                Archive
-              </Button>
-            ) : (
-              <Button
-                color='neutral'
-                variant='outlined'
-                onClick={() => {
-                  unarchiveChore.mutate(choreId)
-                }}
-              >
-                Unarchive
-              </Button>
-            )}
-            <Button
-              color='danger'
-              variant='solid'
-              onClick={() => {
-                // confirm before deleting:
-                handleDelete()
-              }}
-            >
-              Delete
-            </Button>
-          </>
+                Delete
+              </MenuItem>
+            </Menu>
+          </Dropdown>
         )}
         <Button
           color='neutral'
