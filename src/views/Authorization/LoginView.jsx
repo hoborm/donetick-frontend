@@ -771,17 +771,19 @@ const LoginView = () => {
             </Button>
           )}
 
-          <Button
-            onClick={() => {
-              Navigate('/signup')
-            }}
-            fullWidth
-            variant='soft'
-            size='lg'
-            // sx={{ mt: 3, mb: 2 }}
-          >
-            Create new account
-          </Button>
+          {!resource?.is_user_creation_disabled && (
+            <Button
+              onClick={() => {
+                Navigate('/signup')
+              }}
+              fullWidth
+              variant='soft'
+              size='lg'
+              // sx={{ mt: 3, mb: 2 }}
+            >
+              Create new account
+            </Button>
+          )}
 
           <Box
             sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 2 }}
