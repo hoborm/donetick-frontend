@@ -441,7 +441,7 @@ const SortAndGrouping = ({
           key={`${k}-assignee-available-for-me`}
           index={6}
           filterKey='available_for_me'
-          label='Assigned to me or not assigned'
+          label='Available for me'
         />
 
         <MenuItem_QuickFilter
