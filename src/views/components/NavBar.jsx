@@ -25,6 +25,7 @@ import {
 } from '@mui/joy'
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { version } from '../../../package.json'
 import UserProfileAvatar from '../../components/UserProfileAvatar'
@@ -32,12 +33,12 @@ import NavBarLink from './NavBarLink'
 const links = [
   {
     to: '/chores',
-    label: 'All Tasks',
+    labelKey: 'navigation:allTasks',
     icon: <Inbox />,
   },
   {
     to: '/archived',
-    label: 'Archived',
+    labelKey: 'navigation:archived',
     icon: <Archive />,
   },
 
@@ -48,32 +49,32 @@ const links = [
   // },
   {
     to: '/things',
-    label: 'Things',
+    labelKey: 'navigation:things',
     icon: <Widgets />,
   },
   {
     to: 'labels',
-    label: 'Labels',
+    labelKey: 'navigation:labels',
     icon: <ListAlt />,
   },
   {
     to: 'projects',
-    label: 'Projects',
+    labelKey: 'navigation:projects',
     icon: <FolderOpen />,
   },
   {
     to: 'filters',
-    label: 'Filters',
+    labelKey: 'navigation:filters',
     icon: <FilterAlt />,
   },
   {
     to: 'activities',
-    label: 'Activities',
+    labelKey: 'navigation:activities',
     icon: <History />,
   },
   {
     to: 'points',
-    label: 'Points',
+    labelKey: 'navigation:points',
     icon: <Toll />,
   },
   // {
@@ -93,7 +94,7 @@ const links = [
   // },
   {
     to: '/settings',
-    label: 'Settings',
+    labelKey: 'navigation:settings',
     icon: <SettingsOutlined />,
   },
 ]
@@ -105,6 +106,7 @@ import { apiClient } from '../../utils/ApiClient'
 
 const publicPages = ['/landing', '/privacy', '/terms']
 const NavBar = () => {
+  const { t } = useTranslation(['navigation'])
   const { data: resource } = useResource()
 
   const navigate = useNavigate()
@@ -157,7 +159,9 @@ const NavBar = () => {
           }
         }}
         title={
-          searchParams.get('from') === 'calendar' ? 'Back to Calendar' : 'Back'
+          searchParams.get('from') === 'calendar'
+            ? t('backToCalendar')
+            : t('back')
         }
       >
         <ArrowBack />
@@ -255,7 +259,10 @@ const NavBar = () => {
             }}
           >
             {links.map((link, index) => (
-              <NavBarLink key={index} link={link} />
+              <NavBarLink
+                key={index}
+                link={{ ...link, label: t(link.labelKey) }}
+              />
             ))}
           </List>
         </div>

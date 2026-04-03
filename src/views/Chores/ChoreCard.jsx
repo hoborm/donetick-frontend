@@ -20,6 +20,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/joy'
+import { useTranslation } from 'react-i18next'
 import { useImpersonateUser } from '../../contexts/ImpersonateUserContext.jsx'
 import { useUserProfile } from '../../queries/UserQueries.jsx'
 import {
@@ -44,6 +45,7 @@ const ChoreCard = ({
   isSelected = false,
   onSelectionToggle,
 }) => {
+  const { t } = useTranslation(['common'])
   const { data: userProfile } = useUserProfile()
 
   const { impersonatedUser } = useImpersonateUser()
@@ -235,7 +237,7 @@ const ChoreCard = ({
                   {chore.assignedTo === null && (
                     <Box display='flex' alignItems='center' gap={0.5}>
                       <Chip variant='outlined' startDecorator={<Group />}>
-                        Anyone
+                        {t('status.anyone')}
                       </Chip>
                     </Box>
                   )}

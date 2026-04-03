@@ -31,7 +31,11 @@ import {
   Typography,
 } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { useLocale } from '../../contexts/LocaleContext'
+import i18n from '../../i18n'
+import { formatDate, formatTime, getDateKey } from '../../i18n/utils'
 import { useChores, useChoresHistory } from '../../queries/ChoreQueries'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries.jsx'
 import { ChoresGrouper } from '../../utils/Chores'
@@ -43,7 +47,7 @@ const groupByDate = history => {
   const aggregated = {}
   for (let i = 0; i < history.length; i++) {
     const item = history[i]
-    const date = new Date(item.performedAt).toLocaleDateString()
+    const date = getDateKey(item.performedAt)
     if (!aggregated[date]) {
       aggregated[date] = []
     }
@@ -53,6 +57,7 @@ const groupByDate = history => {
 }
 
 const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
+  const { t } = useTranslation(['user'])
   const getStatusIcon = status => {
     switch (status) {
       case 0:
@@ -110,7 +115,7 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
         </Typography>
         {points && (
           <Chip size='sm' color='success' startDecorator={<Toll />}>
-            {`${points} points`}
+            {t('pointsWithCount', { count: points })}
           </Chip>
         )}
       </Box>
@@ -119,6 +124,8 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
 }
 
 const ChoreHistoryTimeline = ({ history }) => {
+  const { t } = useTranslation(['user', 'common'])
+  const { language } = useLocale()
   const groupedHistory = groupByDate(history)
 
   return (
@@ -126,14 +133,14 @@ const ChoreHistoryTimeline = ({ history }) => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
         <Timeline sx={{ fontSize: '1.5rem', color: 'primary.500' }} />
         <Typography level='h4' sx={{ fontWeight: 'lg', color: 'text.primary' }}>
-          Activities Timeline
+          {t('activitiesTimeline')}
         </Typography>
       </Box>
 
       {Object.entries(groupedHistory).map(([date, items]) => (
         <Box key={date} sx={{ mb: 4 }}>
           <Typography level='title-sm' sx={{ mb: 0.5 }}>
-            {new Date(date).toLocaleDateString([], {
+            {formatDate(date, language, {
               weekday: 'long',
               month: 'long',
               day: 'numeric',
@@ -146,10 +153,7 @@ const ChoreHistoryTimeline = ({ history }) => {
               <>
                 <ChoreHistoryItem
                   key={record.id}
-                  time={new Date(record.performedAt).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  time={formatTime(record.performedAt, language)}
                   name={record.choreName}
                   points={record.points}
                   status={record.status}
@@ -182,7 +186,7 @@ const renderPieChart = (data, size, isPrimary, chartType = null) => {
         }}
       >
         <Typography level='body-sm' color='neutral'>
-          No data available
+          {i18n.t('common:status.noDataAvailable')}
         </Typography>
       </Box>
     )

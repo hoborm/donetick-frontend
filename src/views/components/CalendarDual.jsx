@@ -1,7 +1,14 @@
 import { Box, Typography } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import Calendar from 'react-calendar'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useLocale } from '../../contexts/LocaleContext'
+import {
+  formatDate,
+  formatWeekdayShort,
+  getDateKey,
+} from '../../i18n/utils'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries'
 import { getPriorityColor, TASK_COLOR } from '../../utils/Colors'
 import styles from './CalendarDual.module.css'
@@ -12,6 +19,8 @@ const getAssigneeColor = (assignee, userProfile) => {
     : TASK_COLOR.ASSIGNED_TO_OTHER
 }
 const CalendarDual = ({ chores, onDateChange }) => {
+  const { t } = useTranslation(['common'])
+  const { language, locale } = useLocale()
   const { data: userProfile } = useUserProfile()
 
   const [selectedDate, setSeletedDate] = useState(null)
@@ -40,15 +49,13 @@ const CalendarDual = ({ chores, onDateChange }) => {
       return userProfile.displayName
     }
     const assignee = circleMembers.find(member => member.userId === assignedTo)
-    return assignee ? `${assignee.displayName}` : 'Assigned to other'
+    return assignee ? `${assignee.displayName}` : t('status.assignedToOther')
   }
 
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
       const dayChores = chores.filter(chore => {
-        const choreDate = new Date(chore.nextDueDate).toLocaleDateString()
-        const tileDate = date.toLocaleDateString()
-        return choreDate === tileDate
+        return getDateKey(chore.nextDueDate) === getDateKey(date)
       })
       if (dayChores.length === 0) {
         return (
@@ -96,7 +103,7 @@ const CalendarDual = ({ chores, onDateChange }) => {
       {isSecondary && (
         <div className={styles.secondaryCalendarHeader}>
           <Typography level='title-md' sx={{ textAlign: 'center', mb: 1 }}>
-            {date.toLocaleDateString('en-US', {
+            {formatDate(date, language, {
               month: 'long',
               year: 'numeric',
             })}
@@ -104,6 +111,7 @@ const CalendarDual = ({ chores, onDateChange }) => {
         </div>
       )}
       <Calendar
+        locale={locale}
         className={styles.reactCalendar}
         tileContent={tileContent}
         onChange={d => {
@@ -116,9 +124,7 @@ const CalendarDual = ({ chores, onDateChange }) => {
         // Don't show navigation on secondary calendar
         showNavigation={!isSecondary}
         // format the days from MON, TUE, WED, THU, FRI, SAT, SUN to first three letters:
-        formatShortWeekday={(locale, date) =>
-          ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]
-        }
+        formatShortWeekday={(_, date) => formatWeekdayShort(date, language)}
         onActiveStartDateChange={({ activeStartDate }) => {
           if (!isSecondary) {
             setCurrentDate(activeStartDate)

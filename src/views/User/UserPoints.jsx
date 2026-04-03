@@ -40,14 +40,17 @@ import {
   Typography,
 } from '@mui/joy'
 import { useEffect, useState } from 'react'
+import { useLocale } from '../../contexts/LocaleContext'
 import LoadingComponent from '../components/Loading.jsx'
 
+import { formatDate } from '../../i18n/utils'
 import { useChoresHistory } from '../../queries/ChoreQueries.jsx'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries.jsx'
 import { RedeemPoints } from '../../utils/Fetcher.jsx'
 import { resolvePhotoURL } from '../../utils/Helpers.jsx'
 import RedeemPointsModal from '../Modals/RedeemPointsModal'
 const UserPoints = () => {
+  const { language } = useLocale()
   const [tabValue, setTabValue] = useState(7)
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false)
   const [leaderboardMode, setLeaderboardMode] = useState('points') // 'points' or 'tasks'
@@ -76,7 +79,7 @@ const UserPoints = () => {
         generateWeeklySummary(choresHistoryData, userProfile?.id),
       )
     }
-  }, [circleMembersData, choresHistoryData, userProfile])
+  }, [circleMembersData, choresHistoryData, userProfile, language])
 
   useEffect(() => {
     if (choresHistoryData) {
@@ -92,7 +95,7 @@ const UserPoints = () => {
       }
       setSelectedHistory(history)
     }
-  }, [selectedUser, choresHistoryData, tabValue])
+  }, [selectedUser, choresHistoryData, tabValue, language])
 
   useEffect(() => {
     setSelectedUser(userProfile?.id)
@@ -104,13 +107,13 @@ const UserPoints = () => {
       const currentDate = new Date()
       currentDate.setDate(currentDate.getDate() - i)
       daysAggregated.push({
-        label: currentDate.toLocaleString('en-US', { weekday: 'short' }),
+        label: formatDate(currentDate, language, { weekday: 'short' }),
         points: 0,
         tasks: 0,
       })
     }
     history.forEach(chore => {
-      const dayName = new Date(chore.performedAt).toLocaleString('en-US', {
+      const dayName = formatDate(chore.performedAt, language, {
         weekday: 'short',
       })
 
@@ -133,13 +136,13 @@ const UserPoints = () => {
       const currentDate = new Date()
       currentDate.setDate(currentDate.getDate() - i)
       daysAggregated.push({
-        label: currentDate.toLocaleString('en-US', { day: 'numeric' }),
+        label: formatDate(currentDate, language, { day: 'numeric' }),
         points: 0,
         tasks: 0,
       })
     }
     history.forEach(chore => {
-      const dayName = new Date(chore.performedAt).toLocaleString('en-US', {
+      const dayName = formatDate(chore.performedAt, language, {
         day: 'numeric',
       })
 
@@ -164,13 +167,13 @@ const UserPoints = () => {
       const currentMonth = new Date()
       currentMonth.setMonth(currentMonth.getMonth() - i)
       monthlyAggregated.push({
-        label: currentMonth.toLocaleString('en-US', { month: 'short' }),
+        label: formatDate(currentMonth, language, { month: 'short' }),
         points: 0,
         tasks: 0,
       })
     }
     history.forEach(chore => {
-      const monthName = new Date(chore.performedAt).toLocaleString('en-US', {
+      const monthName = formatDate(chore.performedAt, language, {
         month: 'short',
       })
 
@@ -195,13 +198,13 @@ const UserPoints = () => {
       const currentYear = new Date()
       currentYear.setFullYear(currentYear.getFullYear() - i)
       yearlyAggregated.push({
-        label: currentYear.toLocaleString('en-US', { year: 'numeric' }),
+        label: formatDate(currentYear, language, { year: 'numeric' }),
         points: 0,
         tasks: 0,
       })
     }
     history.forEach(chore => {
-      const yearName = new Date(chore.performedAt).toLocaleString('en-US', {
+      const yearName = formatDate(chore.performedAt, language, {
         year: 'numeric',
       })
 

@@ -1,13 +1,19 @@
 import Calendar from 'react-calendar'
+import { useLocale } from '../../contexts/LocaleContext'
+import {
+  formatMonthShort,
+  formatWeekdayShort,
+  getDateKey,
+} from '../../i18n/utils'
 import { getPriorityColor } from '../../utils/Colors'
 import styles from './Calendar.module.css'
 const CalendarMonthly = ({ chores, onDateChange }) => {
+  const { language, locale } = useLocale()
+
   const tileContent = ({ date, view }) => {
     if (view === 'month') {
       const dayChores = chores.filter(chore => {
-        const choreDate = new Date(chore.nextDueDate).toLocaleDateString()
-        const tileDate = date.toLocaleDateString()
-        return choreDate === tileDate
+        return getDateKey(chore.nextDueDate) === getDateKey(date)
       })
       if (dayChores.length === 0) {
         return (
@@ -50,32 +56,15 @@ const CalendarMonthly = ({ chores, onDateChange }) => {
   return (
     <div className={styles.reactCalendar}>
       <Calendar
+        locale={locale}
         tileContent={tileContent}
         onChange={d => {
           onDateChange(new Date(d))
         }}
         // format the days from MON, TUE, WED, THU, FRI, SAT, SUN to first three letters:
-        formatShortWeekday={(locale, date) =>
-          ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()]
-        }
+        formatShortWeekday={(_, date) => formatWeekdayShort(date, language)}
         // format month names to show only first 3 characters
-        formatMonth={(locale, date) => {
-          const monthNames = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'May',
-            'Jun',
-            'Jul',
-            'Aug',
-            'Sep',
-            'Oct',
-            'Nov',
-            'Dec',
-          ]
-          return monthNames[date.getMonth()]
-        }}
+        formatMonth={(_, date) => formatMonthShort(date, language)}
       />
     </div>
   )

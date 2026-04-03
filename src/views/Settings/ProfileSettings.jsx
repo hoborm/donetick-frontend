@@ -12,7 +12,10 @@ import ModalDialog from '@mui/joy/ModalDialog'
 import { useQueryClient } from '@tanstack/react-query'
 import imageCompression from 'browser-image-compression'
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import Cropper from 'react-easy-crop'
+import { useLocale } from '../../contexts/LocaleContext'
+import { formatDateTime } from '../../i18n/utils'
 import { useUserProfile } from '../../queries/UserQueries'
 import { useNotification } from '../../service/NotificationProvider'
 import { apiClient } from '../../utils/ApiClient'
@@ -22,6 +25,8 @@ import { getCroppedImg } from '../../utils/imageCropUtils'
 import SettingsLayout from './SettingsLayout'
 
 const ProfileSettings = () => {
+  const { t } = useTranslation(['settings', 'common'])
+  const { language } = useLocale()
   const queryClient = useQueryClient()
   const { data: userProfile } = useUserProfile()
   const { showSuccess, showError } = useNotification()
@@ -92,13 +97,13 @@ const ProfileSettings = () => {
 
       setPhotoURL(url)
       showSuccess({
-        title: 'Photo Updated',
-        message: 'Your profile photo has been updated successfully!',
+        title: t('settings:profile.photoUpdatedTitle'),
+        message: t('settings:profile.photoUpdatedMessage'),
       })
     } catch (err) {
       showError({
-        title: 'Upload Failed',
-        message: 'Failed to upload your photo. Please try again.',
+        title: t('settings:profile.uploadFailedTitle'),
+        message: t('settings:profile.uploadFailedMessage'),
       })
     } finally {
       setIsUploading(false)
@@ -118,8 +123,8 @@ const ProfileSettings = () => {
 
       if (response.ok) {
         showSuccess({
-          title: 'Profile Updated',
-          message: 'Your profile information has been saved successfully!',
+          title: t('settings:profile.profileUpdatedTitle'),
+          message: t('settings:profile.profileUpdatedMessage'),
         })
       } else {
         throw new Error('Failed to update profile')
@@ -128,9 +133,8 @@ const ProfileSettings = () => {
       console.log(err)
 
       showError({
-        title: 'Update Failed',
-        message:
-          'Unable to update your profile. Please check your connection and try again.',
+        title: t('settings:profile.updateFailedTitle'),
+        message: t('settings:profile.updateFailedMessage'),
       })
     } finally {
       setIsSaving(false)
@@ -142,9 +146,7 @@ const ProfileSettings = () => {
   return (
     <SettingsLayout title='Profile Settings'>
       <div className='grid gap-4 py-4' id='profile'>
-        <Typography level='body-md'>
-          Update your display name and profile photo.
-        </Typography>
+        <Typography level='body-md'>{t('settings:profile.description')}</Typography>
         <Card
           sx={{
             display: 'flex',
@@ -163,7 +165,7 @@ const ProfileSettings = () => {
               loading={isUploading}
               sx={{ mb: 1 }}
             >
-              Change Photo
+              {t('common:actions.changePhoto')}
             </Button>
             <input
               ref={fileInputRef}
@@ -227,7 +229,7 @@ const ProfileSettings = () => {
                 size='md'
                 sx={{ mr: 1 }}
               >
-                Save
+                {t('common:actions.save')}
               </Button>
               <Button
                 onClick={() => {
@@ -237,24 +239,24 @@ const ProfileSettings = () => {
                 variant='soft'
                 color='neutral'
               >
-                Cancel
+                {t('common:actions.cancel')}
               </Button>
             </Box>
           </ModalDialog>
         </Modal>
         <Box sx={{ maxWidth: 400, mt: 3 }}>
           <Typography level='body-sm' sx={{ mb: 0.5 }}>
-            Display Name
+            {t('common:labels.displayName')}
           </Typography>
           <Input
             value={displayName}
             onChange={e => setDisplayName(e.target.value)}
-            placeholder='Enter your display name'
+            placeholder={t('common:placeholders.enterDisplayName')}
             sx={{ mb: 2 }}
           />
 
           <Typography level='body-sm' sx={{ mb: 0.5 }}>
-            Timezone
+            {t('common:labels.timezone')}
           </Typography>
           <Autocomplete
             value={timezone}
@@ -262,7 +264,7 @@ const ProfileSettings = () => {
             options={timezones}
             getOptionLabel={tz => {
               const formattedTimezone = tz.replace(/_/g, ' ')
-              const currentTime = new Date().toLocaleString('en-US', {
+              const currentTime = formatDateTime(new Date(), language, {
                 timeZone: tz,
                 timeStyle: 'short',
               })
@@ -283,7 +285,7 @@ const ProfileSettings = () => {
                 )
               })
             }}
-            placeholder='Select your timezone'
+            placeholder={t('common:placeholders.selectTimezone')}
             sx={{ mb: 2 }}
           />
 
@@ -294,7 +296,7 @@ const ProfileSettings = () => {
             loading={isSaving}
             sx={{ width: 120 }}
           >
-            Save
+            {t('common:actions.save')}
           </Button>
         </Box>
       </div>

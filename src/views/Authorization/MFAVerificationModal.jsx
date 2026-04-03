@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@mui/joy'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useResponsiveModal } from '../../hooks/useResponsiveModal'
 import { VerifyMFA } from '../../utils/Fetcher'
@@ -21,6 +22,7 @@ const MFAVerificationModal = ({
   onSuccess,
   onError,
 }) => {
+  const { t } = useTranslation(['auth', 'common'])
   const [verificationCode, setVerificationCode] = useState('')
   const [isBackupCode, setIsBackupCode] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -28,7 +30,7 @@ const MFAVerificationModal = ({
   const { ResponsiveModal } = useResponsiveModal()
   const handleVerify = async () => {
     if (!verificationCode.trim()) {
-      setError('Please enter a verification code')
+      setError(t('auth:mfa.missingCode'))
       return
     }
 
@@ -43,12 +45,10 @@ const MFAVerificationModal = ({
         onSuccess(data)
       } else {
         const errorData = await response.json()
-        setError(
-          errorData.message || 'Invalid verification code. Please try again.',
-        )
+        setError(errorData.message || t('auth:mfa.invalidCode'))
       }
     } catch (error) {
-      setError('Failed to verify code. Please try again.')
+      setError(t('auth:mfa.verifyFailed'))
       console.error('MFA verification error:', error)
     } finally {
       setLoading(false)
@@ -75,25 +75,29 @@ const MFAVerificationModal = ({
       onClose={handleClose}
       size='lg'
       fullWidth={true}
-      title='Two-Factor Authentication'
+      title={t('auth:mfa.title')}
     >
       <ModalClose />
 
       <Box className='mb-4 text-center'>
         <Security sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
         <Typography level='body-md' sx={{ color: 'text.secondary' }}>
-          Enter the verification code from your authenticator app
+          {t('auth:mfa.instruction')}
         </Typography>
       </Box>
 
       <Stack spacing={3}>
         <Box>
           <Typography level='body-sm' sx={{ mb: 1 }}>
-            {isBackupCode ? 'Backup Code' : 'Verification Code'}
+            {isBackupCode
+              ? t('common:labels.backupCode')
+              : t('common:labels.verificationCode')}
           </Typography>
           <Input
             placeholder={
-              isBackupCode ? 'Enter backup code' : 'Enter 6-digit code'
+              isBackupCode
+                ? t('auth:placeholders.backupCode')
+                : t('auth:placeholders.verificationCode')
             }
             value={verificationCode}
             onChange={e => setVerificationCode(e.target.value)}
@@ -127,7 +131,7 @@ const MFAVerificationModal = ({
           disabled={!verificationCode.trim()}
           size='lg'
         >
-          Verify & Sign In
+          {t('common:actions.verifyAndSignIn')}
         </Button>
 
         <Box className='text-center'>
@@ -142,15 +146,14 @@ const MFAVerificationModal = ({
             sx={{ fontSize: 'sm' }}
           >
             {isBackupCode
-              ? 'Use authenticator app instead'
-              : "Can't access your authenticator? Use a backup code"}
+              ? t('auth:actions.useAuthenticatorApp')
+              : t('auth:actions.useBackupCode')}
           </Link>
         </Box>
 
         <Alert color='neutral' size='sm'>
           <Typography level='body-xs'>
-            Having trouble? Make sure your authenticator app is synced and try
-            again. Each backup code can only be used once.
+            {t('auth:mfa.helpText')}
           </Typography>
         </Alert>
       </Stack>

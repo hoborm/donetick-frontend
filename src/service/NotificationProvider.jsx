@@ -1,6 +1,7 @@
 import { CheckCircle, Error, Info, Undo, Warning } from '@mui/icons-material'
 import { Box, Button, Snackbar, Typography } from '@mui/joy'
 import React, { createContext, useContext, useState } from 'react'
+import i18n from '../i18n'
 
 const NotificationContext = createContext()
 
@@ -19,42 +20,42 @@ const NOTIFICATION_TYPES = {
     icon: <Error color='danger' />,
     autoHideDuration: 6000,
     showDismissButton: true,
-    defaultTitle: 'Error',
+    defaultTitleKey: 'common:notifications.titles.error',
   },
   success: {
     color: 'success',
     icon: <CheckCircle color='success' />,
     autoHideDuration: 5000,
     showDismissButton: false,
-    defaultTitle: 'Success',
+    defaultTitleKey: 'common:notifications.titles.success',
   },
   undo: {
     color: 'success',
     icon: <Undo color='success' />,
     autoHideDuration: null,
     showDismissButton: false,
-    defaultTitle: 'Undone Successfully',
+    defaultTitleKey: 'common:notifications.titles.undo',
   },
   warning: {
     color: 'warning',
     icon: <Warning color='warning' />,
     autoHideDuration: 4000,
     showDismissButton: false,
-    defaultTitle: 'Warning',
+    defaultTitleKey: 'common:notifications.titles.warning',
   },
   info: {
     color: 'primary',
     icon: <Info color='primary' />,
     autoHideDuration: 4000,
     showDismissButton: false,
-    defaultTitle: 'Information',
+    defaultTitleKey: 'common:notifications.titles.info',
   },
   custom: {
     color: 'neutral',
     icon: null,
     autoHideDuration: null,
     showDismissButton: false,
-    defaultTitle: 'Notification',
+    defaultTitleKey: 'common:notifications.titles.custom',
   },
 }
 
@@ -189,7 +190,9 @@ export const NotificationProvider = ({ children }) => {
     const notificationIcon = notification.icon || config.icon
 
     // Determine title and message
-    const title = notification.title || config.defaultTitle
+    const title =
+      notification.title ||
+      i18n.t(config.defaultTitleKey, { defaultValue: 'Notification' })
     const message = notification.message
 
     return (

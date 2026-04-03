@@ -2,7 +2,10 @@ import { CalendarMonth } from '@mui/icons-material'
 import { Avatar, Box, Chip, Grid, Typography } from '@mui/joy'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useLocale } from '../../contexts/LocaleContext'
+import { formatDate, getDateKey } from '../../i18n/utils'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries'
 import { getPriorityColor, TASK_COLOR } from '../../utils/Colors'
 
@@ -14,6 +17,8 @@ const getAssigneeColor = (assignee, userProfile) => {
     : TASK_COLOR.ASSIGNED_TO_OTHER
 }
 const CalendarCard = ({ chores }) => {
+  const { t } = useTranslation(['chores', 'common'])
+  const { language } = useLocale()
   const { data: userProfile } = useUserProfile()
 
   const [selectedDate, setSeletedDate] = useState(null)
@@ -56,7 +61,7 @@ const CalendarCard = ({ chores }) => {
       return userProfile.displayName
     }
     const assignee = circleMembers.find(member => member.userId === assignedTo)
-    return assignee ? `${assignee.displayName}` : 'Assigned to other'
+    return assignee ? `${assignee.displayName}` : t('common:status.assignedToOther')
   }
 
   return (
@@ -81,7 +86,7 @@ const CalendarCard = ({ chores }) => {
         }}
       >
         <CalendarMonth />
-        <Typography level='title-md'>Calendar Overview</Typography>
+        <Typography level='title-md'>{t('labels.calendarOverview')}</Typography>
       </Box>
 
       <div>
@@ -117,25 +122,25 @@ const CalendarCard = ({ chores }) => {
             // Add priority levels that exist in the chores
             if (priorityLevels.has(1)) {
               legendItems.push({
-                name: 'High Priority',
+                name: t('labels.highPriority'),
                 color: TASK_COLOR.PRIORITY_1,
               })
             }
             if (priorityLevels.has(2)) {
               legendItems.push({
-                name: 'Medium Priority',
+                name: t('labels.mediumPriority'),
                 color: TASK_COLOR.PRIORITY_2,
               })
             }
             if (priorityLevels.has(3)) {
               legendItems.push({
-                name: 'Low Priority',
+                name: t('labels.lowPriority'),
                 color: TASK_COLOR.PRIORITY_3,
               })
             }
             if (priorityLevels.has(4)) {
               legendItems.push({
-                name: 'Lowest Priority',
+                name: t('labels.lowestPriority'),
                 color: TASK_COLOR.PRIORITY_4,
               })
             }
@@ -146,7 +151,7 @@ const CalendarCard = ({ chores }) => {
               )
             ) {
               legendItems.push({
-                name: 'No Priority',
+                name: t('labels.noPriority'),
                 color: TASK_COLOR.NO_PRIORITY,
               })
             }
@@ -197,18 +202,18 @@ const CalendarCard = ({ chores }) => {
             }}
           >
             <Typography level='title-md'>
-              {moment(selectedDate).format('MMMM D, YYYY')}
+              {formatDate(selectedDate, language, {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </Typography>
             <Chip variant='soft' color='primary' size='md'>
               {(() => {
                 const count = chores.filter(chore => {
-                  const choreDate = new Date(
-                    chore.nextDueDate,
-                  ).toLocaleDateString()
-                  const selectedLocalDate = selectedDate.toLocaleDateString()
-                  return choreDate === selectedLocalDate
+                  return getDateKey(chore.nextDueDate) === getDateKey(selectedDate)
                 }).length
-                return `${count} Tasks`
+                return `${count} ${t('common:labels.tasks')}`
               })()}
             </Chip>
           </Box>
@@ -227,11 +232,7 @@ const CalendarCard = ({ chores }) => {
           >
             {chores
               .filter(chore => {
-                const choreDate = new Date(
-                  chore.nextDueDate,
-                ).toLocaleDateString()
-                const selectedLocalDate = selectedDate.toLocaleDateString()
-                return choreDate === selectedLocalDate
+                return getDateKey(chore.nextDueDate) === getDateKey(selectedDate)
               })
               .sort((a, b) => moment(a.nextDueDate).diff(moment(b.nextDueDate)))
               .map((chore, idx) => (
@@ -291,7 +292,7 @@ const CalendarCard = ({ chores }) => {
                         color: 'neutral.500',
                       }}
                     >
-                      {moment(chore.nextDueDate).format('h:mm A')}
+                      {moment(chore.nextDueDate).locale(language).format('LT')}
                     </Typography>
                     {/* <Typography
                       level='body-xs'

@@ -5,6 +5,7 @@ import {
   Circle,
   Code,
   FamilyRestroom,
+  Translate,
   Notifications,
   Palette,
   Person,
@@ -29,98 +30,94 @@ import {
   Stack,
   Typography,
 } from '@mui/joy'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useUserProfile } from '../../queries/UserQueries'
 import { isPlusAccount } from '../../utils/Helpers'
 import { isParentUser } from '../../utils/UserHelpers'
 
 const SettingsOverview = () => {
+  const { t } = useTranslation(['settings'])
   const navigate = useNavigate()
   const { data: userProfile } = useUserProfile()
 
   const settingsCards = [
     {
       id: 'profile',
-      title: 'Profile Settings',
-      description:
-        'Update your profile information, photo, display name, and timezone preferences.',
+      title: t('overview.cards.profile.title'),
+      description: t('overview.cards.profile.description'),
       icon: <Person />,
     },
     {
       id: 'circle',
-      title: 'Circle Settings',
-      description:
-        'Manage your circle, invite members, and handle join requests.',
+      title: t('overview.cards.circle.title'),
+      description: t('overview.cards.circle.description'),
       icon: <Circle />,
     },
     {
       id: 'account',
-      title: 'Account Settings',
-      description:
-        'Manage your subscription, change password, and account deletion options.',
+      title: t('overview.cards.account.title'),
+      description: t('overview.cards.account.description'),
       icon: <AccountCircle />,
     },
     {
       id: 'subaccounts',
-      title: 'Managed Accounts',
-      description:
-        'Create and manage sub accounts to log in and complete assigned tasks.',
+      title: t('overview.cards.subaccounts.title'),
+      description: t('overview.cards.subaccounts.description'),
       icon: <FamilyRestroom />,
     },
     {
       id: 'notifications',
-      title: 'Notifications',
-      description:
-        'Configure push notifications, email alerts, and notification targets for tasks.',
+      title: t('overview.cards.notifications.title'),
+      description: t('overview.cards.notifications.description'),
       icon: <Notifications />,
     },
     {
       id: 'mfa',
-      title: 'Multi-Factor Authentication',
-      description:
-        'Add an extra layer of security with MFA using authenticator apps.',
+      title: t('overview.cards.mfa.title'),
+      description: t('overview.cards.mfa.description'),
       icon: <Security />,
     },
     {
       id: 'apitokens',
-      title: 'API Tokens',
-      description:
-        'Generate and manage access tokens for third-party integrations and API access.',
+      title: t('overview.cards.apitokens.title'),
+      description: t('overview.cards.apitokens.description'),
       icon: <Api />,
     },
     {
       id: 'storage',
-      title: 'Storage Settings',
-      description:
-        'Backup and restore your data, manage local storage and sync preferences.',
+      title: t('overview.cards.storage.title'),
+      description: t('overview.cards.storage.description'),
       icon: <Storage />,
     },
     {
       id: 'sidepanel',
-      title: 'Sidepanel Customization',
-      description:
-        'Customize the layout and visibility of cards in the sidepanel interface.',
+      title: t('overview.cards.sidepanel.title'),
+      description: t('overview.cards.sidepanel.description'),
       icon: <ViewSidebar />,
     },
     {
       id: 'theme',
-      title: 'Theme Preferences',
-      description:
-        'Choose your preferred theme and configure dark/light mode settings.',
+      title: t('overview.cards.theme.title'),
+      description: t('overview.cards.theme.description'),
       icon: <Palette />,
     },
     {
+      id: 'language',
+      title: t('overview.cards.language.title'),
+      description: t('overview.cards.language.description'),
+      icon: <Translate />,
+    },
+    {
       id: 'advanced',
-      title: 'Advanced Settings',
-      description:
-        'Configure webhooks, real-time updates, and other advanced features for enhanced productivity.',
+      title: t('overview.cards.advanced.title'),
+      description: t('overview.cards.advanced.description'),
       icon: <Settings />,
     },
     {
       id: 'developer',
-      title: 'Developer Settings',
-      description:
-        'View technical information about authentication tokens, SSE connections, and debug data.',
+      title: t('overview.cards.developer.title'),
+      description: t('overview.cards.developer.description'),
       icon: <Code />,
     },
   ]
@@ -159,10 +156,10 @@ const SettingsOverview = () => {
             level='h3'
             sx={{ fontWeight: 'lg', color: 'text.primary' }}
           >
-            Settings
+            {t('overview.title')}
           </Typography>
           <Typography level='body-sm' sx={{ color: 'text.secondary' }}>
-            Customize your experience and manage your account preferences
+            {t('overview.subtitle')}
           </Typography>
         </Stack>
       </Box>

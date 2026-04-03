@@ -1,5 +1,7 @@
 import moment from 'moment'
-const allMonths = [
+import i18n from '../i18n'
+
+const ENGLISH_MONTHS = [
   'January',
   'February',
   'March',
@@ -13,6 +15,90 @@ const allMonths = [
   'November',
   'December',
 ]
+
+const ENGLISH_DAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+
+const getDayIndex = day => {
+  if (typeof day === 'number') {
+    return day
+  }
+
+  const index = ENGLISH_DAYS.findIndex(
+    candidate => candidate.toLowerCase() === `${day}`.toLowerCase(),
+  )
+
+  return index === -1 ? 0 : index
+}
+
+const getMonthIndex = month => {
+  if (typeof month === 'number') {
+    return month
+  }
+
+  const index = ENGLISH_MONTHS.findIndex(
+    candidate => candidate.toLowerCase() === `${month}`.toLowerCase(),
+  )
+
+  return index === -1 ? 0 : index
+}
+
+const getCalendarDayLabel = date => {
+  return date.calendar(null, {
+    sameDay: `[${i18n.t('common:calendar.today')}]`,
+    nextDay: `[${i18n.t('common:calendar.tomorrow')}]`,
+    lastDay: `[${i18n.t('common:calendar.yesterday')}]`,
+    nextWeek: 'dddd',
+    lastWeek: 'dddd',
+    sameElse: 'L',
+  })
+}
+
+const getCalendarDateTimeLabel = date => {
+  return date.calendar(null, {
+    sameDay: `[${i18n.t('common:calendar.today')}] LT`,
+    nextDay: `[${i18n.t('common:calendar.tomorrow')}] LT`,
+    lastDay: `[${i18n.t('common:calendar.yesterday')}] LT`,
+    nextWeek: 'dddd LT',
+    lastWeek: 'dddd LT',
+    sameElse: 'L LT',
+  })
+}
+
+const formatDayOfMonth = value => {
+  if (i18n.language === 'de') {
+    return `${value}.`
+  }
+
+  if (value >= 11 && value <= 13) {
+    return `${value}th`
+  }
+
+  switch (value % 10) {
+    case 1:
+      return `${value}st`
+    case 2:
+      return `${value}nd`
+    case 3:
+      return `${value}rd`
+    default:
+      return `${value}th`
+  }
+}
+
+const translateFrequencyUnit = unit => {
+  return i18n.t(`chores:frequency.units.${unit}`, {
+    defaultValue: unit,
+  })
+}
+
 /**
  * Get the text to display for a chore's due date
  * @param {string|null} nextDueDate - The next due date of the chore
@@ -20,37 +106,42 @@ const allMonths = [
  * @returns {string} The formatted due date text
  */
 export const getDueDateChipText = (nextDueDate, chore) => {
-  if (chore?.nextDueDate === null || nextDueDate === null) return 'No Due Date'
+  if (chore?.nextDueDate === null || nextDueDate === null) {
+    return i18n.t('chores:due.noDueDate')
+  }
 
   const dueDate = moment(nextDueDate)
   const diff = moment(nextDueDate).diff(moment(), 'hours')
 
-  // if seconds and minutes set to 59, treat as no time (date only)
   if (dueDate.seconds() === 59 && dueDate.minutes() === 59) {
     if (diff < 0) {
-      // For overdue dates, show calendar format for recent dates
       const absDiff = Math.abs(diff)
       if (absDiff <= 48) {
-        return (
-          'Overdue ' +
-          moment(nextDueDate).calendar().split(' at ')[0].toLowerCase()
-        )
+        return i18n.t('chores:due.overdueDay', {
+          day: getCalendarDayLabel(moment(nextDueDate)).toLowerCase(),
+        })
       }
-      return 'Overdue ' + dueDate.fromNow()
+      return i18n.t('chores:due.overdueRelative', {
+        when: dueDate.fromNow(),
+      })
     }
-    // if due in next 48 hours, show calendar format without time (e.g., "Tomorrow")
+
     if (diff < 48 && diff > 0) {
-      return moment(nextDueDate).calendar().split(' at ')[0]
+      return getCalendarDayLabel(moment(nextDueDate))
     }
-    // if due date is after 48 hours, show it in format: Due in 3 days
-    return 'Due ' + dueDate.fromNow()
+
+    return i18n.t('chores:due.dueRelative', {
+      when: dueDate.fromNow(),
+    })
   }
 
-  // if due in next 48 hours, we should show it in this format: Tomorrow 11:00 AM
   if (diff < 48 && diff > 0) {
-    return moment(nextDueDate).calendar().replace(' at', '')
+    return getCalendarDateTimeLabel(moment(nextDueDate))
   }
-  return 'Due ' + moment(nextDueDate).fromNow()
+
+  return i18n.t('chores:due.dueRelative', {
+    when: moment(nextDueDate).fromNow(),
+  })
 }
 
 /**
@@ -75,90 +166,81 @@ export const getDueDateChipColor = (nextDueDate, chore) => {
 }
 
 export const getRecurrentChipText = chore => {
-  // if chore.frequencyMetadata is type string then parse it otherwise assigned to the metadata:
   const metadata =
     typeof chore.frequencyMetadata === 'string'
       ? JSON.parse(chore.frequencyMetadata)
       : chore.frequencyMetadata
 
-  const dayOfMonthSuffix = n => {
-    if (n >= 11 && n <= 13) {
-      return 'th'
-    }
-    switch (n % 10) {
-      case 1:
-        return 'st'
-      case 2:
-        return 'nd'
-      case 3:
-        return 'rd'
-      default:
-        return 'th'
-    }
-  }
   if (chore.frequencyType === 'once') {
-    return 'Once'
+    return i18n.t('chores:frequency.once')
   } else if (chore.frequencyType === 'trigger') {
-    return 'Trigger'
+    return i18n.t('chores:frequency.trigger')
   } else if (chore.frequencyType === 'daily') {
-    return 'Daily'
+    return i18n.t('chores:frequency.daily')
   } else if (chore.frequencyType === 'adaptive') {
-    return 'Adaptive'
+    return i18n.t('chores:frequency.adaptive')
   } else if (chore.frequencyType === 'weekly') {
-    return 'Weekly'
+    return i18n.t('chores:frequency.weekly')
   } else if (chore.frequencyType === 'monthly') {
-    return 'Monthly'
+    return i18n.t('chores:frequency.monthly')
   } else if (chore.frequencyType === 'yearly') {
-    return 'Yearly'
+    return i18n.t('chores:frequency.yearly')
   } else if (chore.frequencyType === 'days_of_the_week') {
-    let days = metadata.days
+    let days = metadata.days.map(getDayIndex)
+
     if (days.length > 4) {
-      const allDays = [
-        'Sunday',
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-      ]
-      const selectedDays = days.map(d => moment().day(d).format('dddd'))
-      const notSelectedDay = allDays.filter(day => !selectedDays.includes(day))
-      const notSelectedShortdays = notSelectedDay.map(d =>
-        moment().day(d).format('ddd'),
-      )
-      return `Daily except ${notSelectedShortdays.join(', ')}`
-    } else {
-      days = days.map(d => moment().day(d).format('ddd'))
-      return days.join(', ')
+      const notSelectedShortdays = Array.from({ length: 7 }, (_, index) => index)
+        .filter(dayIndex => !days.includes(dayIndex))
+        .map(dayIndex => moment().day(dayIndex).format('ddd'))
+
+      return i18n.t('chores:frequency.dailyExcept', {
+        days: notSelectedShortdays.join(', '),
+      })
     }
+
+    days = days.map(dayIndex => moment().day(dayIndex).format('ddd'))
+    return days.join(', ')
   } else if (chore.frequencyType === 'day_of_the_month') {
-    let months = metadata?.months ? metadata.months : allMonths
+    let months = metadata?.months
+      ? metadata.months.map(getMonthIndex)
+      : Array.from({ length: 12 }, (_, index) => index)
+
     if (months.length > 6) {
-      const selectedMonths = months.map(m => moment().month(m).format('MMMM'))
-      const notSelectedMonth = allMonths.filter(
-        month => !selectedMonths.includes(month),
+      const notSelectedShortMonths = Array.from(
+        { length: 12 },
+        (_, index) => index,
       )
-      const notSelectedShortMonths = notSelectedMonth.map(m =>
-        moment().month(m).format('MMM'),
-      )
-      let result = `Monthly ${chore.frequency}${dayOfMonthSuffix(
+        .filter(monthIndex => !months.includes(monthIndex))
+        .map(monthIndex => moment().month(monthIndex).format('MMM'))
+
+      let result = `${i18n.t('chores:frequency.monthly')} ${formatDayOfMonth(
         chore.frequency,
       )}`
-      if (notSelectedShortMonths.length > 0)
-        result += `
-        except ${notSelectedShortMonths.join(', ')}`
+
+      if (notSelectedShortMonths.length > 0) {
+        result = i18n.t('chores:frequency.monthlyExcept', {
+          label: result,
+          months: notSelectedShortMonths.join(', '),
+        })
+      }
+
       return result
-    } else {
-      let freqData = metadata
-      const months = freqData.months.map(m => moment().month(m).format('MMM'))
-      return `${chore.frequency}${dayOfMonthSuffix(
-        chore.frequency,
-      )} of ${months.join(', ')}`
     }
+
+    const formattedMonths = metadata.months
+      .map(getMonthIndex)
+      .map(monthIndex => moment().month(monthIndex).format('MMM'))
+
+    return i18n.t('chores:frequency.dayOfMonths', {
+      day: formatDayOfMonth(chore.frequency),
+      months: formattedMonths.join(', '),
+    })
   } else if (chore.frequencyType === 'interval') {
-    return `Every ${chore.frequency} ${metadata.unit}`
-  } else {
-    return chore.frequencyType
+    return i18n.t('chores:frequency.everyUnit', {
+      count: chore.frequency,
+      unit: translateFrequencyUnit(metadata.unit),
+    })
   }
+
+  return chore.frequencyType
 }

@@ -1,5 +1,6 @@
 import { FilterAlt } from '@mui/icons-material'
 import { Box, Stack, Typography } from '@mui/joy'
+import { useTranslation } from 'react-i18next'
 import { getIconComponent } from '../../../utils/ProjectIcons.jsx'
 
 const MyChoreHeader = ({
@@ -9,6 +10,8 @@ const MyChoreHeader = ({
   tempFilter,
   tempFilterMeta,
 }) => {
+  const { t } = useTranslation(['common'])
+
   if (
     !activeFilterId &&
     !tempFilter &&
@@ -45,7 +48,7 @@ const MyChoreHeader = ({
   }
 
   const name = tempFilter
-    ? tempFilterMeta?.name || 'Smart Filter'
+    ? tempFilterMeta?.name || t('status.smartFilter')
     : activeFilter?.name || selectedProject?.name
 
   const description = tempFilter

@@ -31,7 +31,11 @@ import {
 } from '@mui/joy'
 import Fuse from 'fuse.js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import Logo from '../../Logo'
+import { useLocale } from '../../contexts/LocaleContext'
+import { formatDate, getDateKey } from '../../i18n/utils'
 import { useChores } from '../../queries/ChoreQueries'
 import { useNotification } from '../../service/NotificationProvider'
 import Priorities from '../../utils/Priorities'
@@ -81,6 +85,8 @@ import { INSIGHT_FILTER_DEFS } from './SmartInsightsCard'
 import SortAndGrouping from './SortAndGrouping'
 
 const MyChores = () => {
+  const { t } = useTranslation(['chores', 'common'])
+  const { language } = useLocale()
   const { data: userProfile, isLoading: isUserProfileLoading } =
     useUserProfile()
   const isLargeScreen = useMediaQuery(theme => theme.breakpoints.up('md'))
@@ -788,9 +794,7 @@ const MyChores = () => {
       const filteredChoresData = getFilteredChores
       return filteredChoresData.filter(chore => {
         if (!chore.nextDueDate) return false
-        const choreDate = new Date(chore.nextDueDate).toLocaleDateString()
-        const selectedDate = date.toLocaleDateString()
-        return choreDate === selectedDate
+        return getDateKey(chore.nextDueDate) === getDateKey(date)
       })
     },
     [getFilteredChores],
@@ -828,14 +832,14 @@ const MyChores = () => {
             <Logo />
           </Box>
           <Typography level='h4' color='danger'>
-            Unable to communicate with server
+            {t('messages.serverUnavailableTitle')}
           </Typography>
           <Typography
             level='body-md'
             sx={{ textAlign: 'center', maxWidth: 400 }}
           >
             {choresErrorDetails?.message ||
-              'The server is currently unavailable. Please check your connection and try again.'}
+              t('messages.serverUnavailableDescription')}
           </Typography>
           <Button
             variant='solid'
@@ -1445,7 +1449,13 @@ const MyChores = () => {
             {selectedCalendarDate && (
               <Box sx={{ mt: 2 }}>
                 <Typography level='title-md' gutterBottom>
-                  Tasks for {selectedCalendarDate.toLocaleDateString()}
+                  {t('common:calendar.tasksForDate', {
+                    date: formatDate(selectedCalendarDate, language, {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }),
+                  })}
                 </Typography>
                 <Box
                   sx={{
@@ -1465,7 +1475,7 @@ const MyChores = () => {
                         color: 'text.tertiary',
                       }}
                     >
-                      No tasks scheduled for this date
+                      {t('labels.noTasksForDate')}
                     </Typography>
                   ) : (
                     <ChoreListView
