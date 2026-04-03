@@ -589,44 +589,24 @@ const NotificationTemplate = ({
                       const val = e.target.value
                       if (val.includes('-')) return
 
-                      // Prevent setting to '0' if an 'On Due' already exists elsewhere
-                      if (val === '0' || val === '') {
-                        if (hasOnDueElsewhere) return
-                      }
-
                       setDraftValues(prev => ({ ...prev, [idx]: val }))
                     }}
                     onKeyDown={e => {
                       if (['-', 'e', '+', '.'].includes(e.key)) {
                         e.preventDefault()
-                        return
-                      }
-
-                      // Physically block typing '0' if 'On Due' exists
-                      if (
-                        e.key === '0' ||
-                        e.key === 'Backspace' ||
-                        e.key === 'Delete'
-                      ) {
-                        const currentVal =
-                          draftValues[idx] !== undefined
-                            ? draftValues[idx]
-                            : uiRep.displayValue.toString()
-
-                        // If typing 0 into an empty input, or deleting the last character
-                        const willBeZero =
-                          (e.key === '0' && currentVal === '') ||
-                          ((e.key === 'Backspace' || e.key === 'Delete') &&
-                            currentVal.length <= 1)
-
-                        if (willBeZero && hasOnDueElsewhere) {
-                          e.preventDefault()
-                        }
                       }
                     }}
                     onBlur={e => {
                       let val = e.target.value
-                      if (val === '' || Number(val) < 0) val = 0
+
+                      const numericVal = Number(val)
+                      val =
+                        numericVal <= 0
+                          ? hasOnDueElsewhere
+                            ? 1
+                            : 0
+                          : numericVal
+
                       handleChange(idx, 'displayValue', val)
                       setDraftValues(prev => {
                         const next = { ...prev }
