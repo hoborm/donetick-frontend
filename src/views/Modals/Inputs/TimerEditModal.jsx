@@ -12,6 +12,7 @@ import {
 } from '@mui/joy'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useResponsiveModal } from '../../../hooks/useResponsiveModal'
 import { useNotification } from '../../../service/NotificationProvider'
 import {
@@ -22,6 +23,7 @@ import {
 import ConfirmationModal from './ConfirmationModal'
 
 const TimerEditModal = ({ isOpen, onClose, choreId, onTimerUpdate }) => {
+  const { t } = useTranslation(['timer', 'common'])
   const { ResponsiveModal } = useResponsiveModal()
 
   const [timerData, setTimerData] = useState(null)
@@ -179,8 +181,8 @@ const TimerEditModal = ({ isOpen, onClose, choreId, onTimerUpdate }) => {
         {
           onSuccess: () => {
             showSuccess({
-              title: 'Session updated',
-              message: 'Timer session has been updated successfully.',
+              title: t('timer:edit.updatedTitle'),
+              message: t('timer:edit.updatedMessage'),
             })
             refetchTimer()
             cancelEditingSession(sessionId)
@@ -188,8 +190,8 @@ const TimerEditModal = ({ isOpen, onClose, choreId, onTimerUpdate }) => {
           },
           onError: () => {
             showError({
-              title: 'Failed to update session',
-              message: 'Please try again.',
+              title: t('timer:edit.updateFailedTitle'),
+              message: t('timer:edit.tryAgain'),
             })
           },
         },
@@ -211,8 +213,8 @@ const TimerEditModal = ({ isOpen, onClose, choreId, onTimerUpdate }) => {
       {
         onSuccess: () => {
           showSuccess({
-            title: 'Session deleted',
-            message: 'Timer session has been deleted successfully.',
+            title: t('timer:edit.deletedTitle'),
+            message: t('timer:edit.deletedMessage'),
           })
           refetchTimer()
           onTimerUpdate?.()
@@ -233,10 +235,10 @@ const TimerEditModal = ({ isOpen, onClose, choreId, onTimerUpdate }) => {
   const confirmDeleteSession = sessionId => {
     setConfirmDeleteConfig({
       isOpen: true,
-      title: 'Delete Timer Session',
-      message: 'Are you sure you want to delete this timer session?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      title: t('timer:edit.deleteTitle'),
+      message: t('timer:edit.deleteMessage'),
+      confirmText: t('common:actions.delete'),
+      cancelText: t('common:actions.cancel'),
       color: 'danger',
       onClose: isConfirmed => {
         if (isConfirmed) {

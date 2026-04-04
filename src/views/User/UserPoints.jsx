@@ -40,6 +40,7 @@ import {
   Typography,
 } from '@mui/joy'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocale } from '../../contexts/LocaleContext'
 import LoadingComponent from '../components/Loading.jsx'
 
@@ -50,6 +51,7 @@ import { RedeemPoints } from '../../utils/Fetcher.jsx'
 import { resolvePhotoURL } from '../../utils/Helpers.jsx'
 import RedeemPointsModal from '../Modals/RedeemPointsModal'
 const UserPoints = () => {
+  const { t } = useTranslation(['user'])
   const { language } = useLocale()
   const [tabValue, setTabValue] = useState(7)
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false)
@@ -311,11 +313,9 @@ const UserPoints = () => {
                 {leaderboardMode === 'points' ? 'Points' : 'Tasks'} Leaderboard
               </Typography>
               <Typography level='body-sm' sx={{ color: 'text.secondary' }}>
-                Rankings based on{' '}
                 {leaderboardMode === 'points'
-                  ? 'points earned'
-                  : 'tasks completed'}{' '}
-                during the selected time period
+                  ? t('user:points.rankingsPoints')
+                  : t('user:points.rankingsTasks')}
               </Typography>
             </Stack>
           </Box>
@@ -411,7 +411,7 @@ const UserPoints = () => {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => setLeaderboardMode('points')}
               >
-                Points
+                {t('user:points.modePoints')}
               </Chip>
               <SwapHoriz
                 sx={{ fontSize: '0.875rem', color: 'text.tertiary' }}
@@ -423,7 +423,7 @@ const UserPoints = () => {
                 sx={{ cursor: 'pointer' }}
                 onClick={() => setLeaderboardMode('tasks')}
               >
-                Tasks
+                {t('user:points.modeTasks')}
               </Chip>
             </Box>
           </Box>
@@ -515,7 +515,7 @@ const UserPoints = () => {
                             color='primary'
                             sx={{ ml: 1 }}
                           >
-                            You
+                            {t('user:points.you')}
                           </Chip>
                         )}
                       </Typography>
@@ -523,8 +523,10 @@ const UserPoints = () => {
                         level='body-xs'
                         sx={{ color: 'text.secondary' }}
                       >
-                        {user.periodTasks} tasks • {user.avgPointsPerTask} avg
-                        per task
+                        {t('user:points.tasksAvg', {
+                          tasks: user.periodTasks,
+                          avg: user.avgPointsPerTask,
+                        })}
                       </Typography>
                     </Stack>
                   </Box>
@@ -555,8 +557,12 @@ const UserPoints = () => {
                     </Box>
                     <Typography level='body-xs' sx={{ color: 'text.tertiary' }}>
                       {leaderboardMode === 'points'
-                        ? `${user.availablePoints} available`
-                        : `${user.periodPoints} points`}
+                        ? t('user:points.available', {
+                            count: user.availablePoints,
+                          })
+                        : t('user:points.pointsLabel', {
+                            count: user.periodPoints,
+                          })}
                     </Typography>
                   </Stack>
 
@@ -594,7 +600,7 @@ const UserPoints = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
         <Analytics sx={{ fontSize: '1.5rem', color: 'primary.500' }} />
         <Typography level='h4' sx={{ fontWeight: 'lg', color: 'text.primary' }}>
-          Filter & Analysis
+          {t('user:points.filterAndAnalysis')}
         </Typography>
       </Box>
 
@@ -613,7 +619,7 @@ const UserPoints = () => {
       >
         <Stack spacing={2}>
           <Typography level='title-sm' sx={{ color: 'text.secondary' }}>
-            Filter Points
+            {t('user:points.filterTitle')}
           </Typography>
 
           <Stack
@@ -624,7 +630,7 @@ const UserPoints = () => {
             {/* User Filter */}
             <Box sx={{ flex: 1, minWidth: 200 }}>
               <Typography level='body-sm' sx={{ mb: 1, fontWeight: 500 }}>
-                Show points for:
+                {t('user:points.showFor')}
               </Typography>
               <Select
                 sx={{
@@ -691,7 +697,7 @@ const UserPoints = () => {
             {/* Time Period Filter */}
             <Box sx={{ flex: 1, minWidth: 200 }}>
               <Typography level='body-sm' sx={{ mb: 1, fontWeight: 500 }}>
-                Time period:
+                {t('user:points.timePeriod')}
               </Typography>
               <Tabs
                 onChange={(e, tabValue) => {
@@ -716,9 +722,9 @@ const UserPoints = () => {
                   }}
                 >
                   {[
-                    { label: '7 Days', value: 7 },
-                    { label: '6 Months', value: 6 * 30 },
-                    { label: 'All Time', value: 24 * 30 },
+                    { label: t('user:points.days7'), value: 7 },
+                    { label: t('user:points.months6'), value: 6 * 30 },
+                    { label: t('user:points.allTime'), value: 24 * 30 },
                   ].map((tab, index) => (
                     <Tab
                       key={index}
@@ -762,7 +768,7 @@ const UserPoints = () => {
                   }}
                   sx={{ mt: 'auto' }}
                 >
-                  Redeem Points
+                  {t('user:points.redeemPoints')}
                 </Button>
               </Box>
             )}
@@ -791,27 +797,32 @@ const UserPoints = () => {
           const pointsCards = [
             {
               icon: <Toll />,
-              title: 'Available',
-              text: `${availablePoints} points`,
-              subtext: 'Ready to redeem',
+              title: t('user:points.cardAvailable'),
+              text: t('user:points.pointsLabel', { count: availablePoints }),
+              subtext: t('user:points.cardAvailableSubtext'),
             },
             {
               icon: <Redeem />,
-              title: 'Redeemed',
-              text: `${redeemedPoints} points`,
-              subtext: 'Previously used',
+              title: t('user:points.cardRedeemed'),
+              text: t('user:points.pointsLabel', { count: redeemedPoints }),
+              subtext: t('user:points.cardRedeemedSubtext'),
             },
             {
               icon: <AccountBalanceWallet />,
-              title: 'Total',
-              text: `${totalPoints} points`,
-              subtext: 'All time earned',
+              title: t('user:points.cardTotal'),
+              text: t('user:points.pointsLabel', { count: totalPoints }),
+              subtext: t('user:points.cardTotalSubtext'),
             },
             {
               icon: <TrendingUp />,
-              title: 'Period Points',
-              text: `${periodPoints} points`,
-              subtext: `${tabValue === 24 * 30 ? 'All time' : tabValue === 6 * 30 ? 'Last 6 months' : `Last ${tabValue} days`}`,
+              title: t('user:points.cardPeriod'),
+              text: t('user:points.pointsLabel', { count: periodPoints }),
+              subtext:
+                tabValue === 24 * 30
+                  ? t('user:points.allTime')
+                  : tabValue === 6 * 30
+                    ? t('user:points.lastMonths6')
+                    : t('user:points.lastDays', { count: tabValue }),
             },
           ]
 
@@ -874,25 +885,17 @@ const UserPoints = () => {
       {/* Current Filter Summary */}
       <Box sx={{ mb: 3, textAlign: 'center' }}>
         <Typography level='body-sm' sx={{ color: 'text.secondary' }}>
-          Showing points for{' '}
-          <Typography
-            component='span'
-            sx={{ fontWeight: 600, color: 'primary.500' }}
-          >
-            {circleUsers.find(user => user.userId === selectedUser)
-              ?.displayName || 'Unknown User'}
-          </Typography>{' '}
-          over the{' '}
-          <Typography
-            component='span'
-            sx={{ fontWeight: 600, color: 'primary.500' }}
-          >
-            {tabValue === 24 * 30
-              ? 'All Time'
-              : tabValue === 6 * 30
-                ? 'Last 6 Months'
-                : `Last ${tabValue} Days`}
-          </Typography>
+          {t('user:points.showingFor', {
+            user:
+              circleUsers.find(user => user.userId === selectedUser)
+                ?.displayName || t('user:points.unknownUser'),
+            period:
+              tabValue === 24 * 30
+                ? t('user:points.allTime')
+                : tabValue === 6 * 30
+                  ? t('user:points.lastMonths6')
+                  : t('user:points.lastDays', { count: tabValue }),
+          })}
         </Typography>
       </Box>
 
@@ -911,7 +914,7 @@ const UserPoints = () => {
             level='h4'
             sx={{ fontWeight: 'lg', color: 'text.primary' }}
           >
-            Points Trend
+            {t('user:points.pointsTrend')}
           </Typography>
         </Box>
 

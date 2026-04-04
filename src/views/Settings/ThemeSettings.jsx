@@ -7,7 +7,7 @@ const ThemeSettings = () => {
   const { t } = useTranslation(['settings'])
 
   return (
-    <SettingsLayout title='Theme Preferences'>
+    <SettingsLayout title={t('settings:pages.theme.title')}>
       <div className='grid gap-4'>
         <Typography level='body-md'>{t('theme.description')}</Typography>
         <ThemeToggle />

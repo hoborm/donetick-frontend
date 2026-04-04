@@ -39,6 +39,7 @@ import { Divider } from '@mui/material'
 import { useQueryClient } from '@tanstack/react-query'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { useImpersonateUser } from '../../contexts/ImpersonateUserContext.jsx'
@@ -75,6 +76,7 @@ import TimePassedCard from './TimePassedCard.jsx'
 import TimerSplitButton from './TimerSplitButton.jsx'
 
 const ChoreView = () => {
+  const { t } = useTranslation(['chores', 'common'])
   const [chore, setChore] = useState({})
   const navigate = useNavigate()
   const [performers, setPerformers] = useState([])
@@ -143,49 +145,53 @@ const ChoreView = () => {
       {
         size: 6,
         icon: <PeopleAlt />,
-        title: 'Assignment',
-        text: `Assigned: ${
+        title: t('chores:detail.cards.assignment'),
+        text: `${t('chores:detail.cards.assigned')}: ${
           performers.find(p => p.userId === chore.assignedTo)?.displayName ||
-          'N/A'
+          t('chores:detail.cards.notAvailable')
         }`,
-        subtext: ` Last: ${
+        subtext: `${t('chores:detail.cards.last')}: ${
           chore.lastCompletedDate && chore.lastCompletedBy
             ? performers.find(p => p.userId === chore.lastCompletedBy)
                 ?.displayName
-            : 'N/A'
+            : t('chores:detail.cards.notAvailable')
         }`,
       },
       {
         size: 6,
         icon: <CalendarMonth />,
-        title: 'Schedule',
-        text: `Due: ${
-          chore.nextDueDate ? moment(chore.nextDueDate).fromNow() : 'N/A'
+        title: t('chores:detail.cards.schedule'),
+        text: `${t('chores:detail.cards.due')}: ${
+          chore.nextDueDate
+            ? moment(chore.nextDueDate).fromNow()
+            : t('chores:detail.cards.notAvailable')
         }`,
-        subtext: `Last: ${
+        subtext: `${t('chores:detail.cards.last')}: ${
           chore.lastCompletedDate
             ? moment(chore.lastCompletedDate).fromNow()
-            : 'N/A'
+            : t('chores:detail.cards.notAvailable')
         }`,
 
         subtext2:
           chore.deadlineOffset > 0 && chore.nextDueDate
-            ? `Deadline: ${moment(chore.nextDueDate).add(chore.deadlineOffset, 'seconds').fromNow()}`
+            ? `${t('chores:detail.cards.deadline')}: ${moment(chore.nextDueDate).add(chore.deadlineOffset, 'seconds').fromNow()}`
             : null,
       },
       {
         size: 6,
         icon: <Checklist />,
-        title: 'Statistics',
-        text: `Completed: ${chore.totalCompletedCount || 0} times`,
+        title: t('chores:detail.cards.statistics'),
+        text: t('chores:detail.cards.completedTimes', {
+          count: chore.totalCompletedCount || 0,
+        }),
       },
       {
         size: 6,
         icon: <Person />,
-        title: 'Details',
-        subtext: `Created By: ${
+        title: t('chores:detail.cards.details'),
+        subtext: `${t('chores:detail.cards.createdBy')}: ${
           performers.find(p => p.userId === chore.createdBy)?.displayName ||
-          'N/A'
+          t('chores:detail.cards.notAvailable')
         }`,
       },
     ]
@@ -225,8 +231,8 @@ const ChoreView = () => {
       .then(() => {
         // Show undo notification
         showSuccess({
-          title: 'Task Completed',
-          message: 'Your task has been marked as complete',
+          title: t('chores:detail.notifications.taskCompleted'),
+          message: t('chores:detail.notifications.taskCompletedMessage'),
           undoAction: async () => {
             try {
               const undoResponse = await UndoChoreAction(choreId)
@@ -239,16 +245,16 @@ const ChoreView = () => {
                   queryClient.invalidateQueries(['chores'])
                 }
                 showUndo({
-                  title: 'Undo Successful',
-                  message: 'Task completion has been undone.',
+                  title: t('chores:detail.notifications.undoSuccessful'),
+                  message: t('chores:detail.notifications.taskCompletionUndone'),
                 })
               } else {
                 throw new Error('Failed to undo')
               }
             } catch (error) {
               showError({
-                title: 'Undo Failed',
-                message: 'Unable to undo the action. Please try again.',
+                title: t('chores:detail.notifications.undoFailed'),
+                message: t('chores:detail.notifications.undoFailedMessage'),
               })
             }
           },
@@ -266,7 +272,7 @@ const ChoreView = () => {
 
           // Show undo notification
           showSuccess({
-            message: 'Task skipped',
+            message: t('chores:detail.notifications.taskSkipped'),
             undoAction: async () => {
               try {
                 const undoResponse = await UndoChoreAction(choreId)
@@ -279,16 +285,16 @@ const ChoreView = () => {
                     queryClient.invalidateQueries(['chores'])
                   }
                   showUndo({
-                    title: 'Undo Successful',
-                    message: 'Task skip has been undone.',
+                    title: t('chores:detail.notifications.undoSuccessful'),
+                    message: t('chores:detail.notifications.taskSkipUndone'),
                   })
                 } else {
                   throw new Error('Failed to undo')
                 }
               } catch (error) {
                 showError({
-                  title: 'Undo Failed',
-                  message: 'Unable to undo the action. Please try again.',
+                  title: t('chores:detail.notifications.undoFailed'),
+                  message: t('chores:detail.notifications.undoFailedMessage'),
                 })
               }
             },
@@ -324,11 +330,10 @@ const ChoreView = () => {
   const handleResetTimer = () => {
     setTimerActionConfig({
       isOpen: true,
-      title: 'Reset Timer',
-      message:
-        'Are you sure you want to reset the timer? This will clear all time records since you started the task.',
-      confirmText: 'Reset Timer',
-      cancelText: 'Cancel',
+      title: t('chores:detail.timer.resetTitle'),
+      message: t('chores:detail.timer.resetMessage'),
+      confirmText: t('chores:detail.timer.resetConfirm'),
+      cancelText: t('common:actions.cancel'),
       onClose: confirmed => {
         if (confirmed) {
           resetChoreTimer.mutate(choreId, {
@@ -349,11 +354,10 @@ const ChoreView = () => {
   const handleClearAllTime = () => {
     setTimerActionConfig({
       isOpen: true,
-      title: 'Clear All Time Records',
-      message:
-        'This will permanently delete all timers for this task and set it back to "not started".',
-      confirmText: 'Clear All Time',
-      cancelText: 'Cancel',
+      title: t('chores:detail.timer.clearTitle'),
+      message: t('chores:detail.timer.clearMessage'),
+      confirmText: t('chores:detail.timer.clearConfirm'),
+      cancelText: t('common:actions.cancel'),
       onClose: async confirmed => {
         if (confirmed) {
           if (choreTimer?.res?.id) {
@@ -766,11 +770,11 @@ const ChoreView = () => {
                 mb: 1,
                 cursor: 'pointer',
               }}
-              onClick={() => {
-                setNoteViewerConfig({
-                  isOpen: true,
-                  title: 'Previous Note',
-                  content: chore.notes,
+                  onClick={() => {
+                    setNoteViewerConfig({
+                      isOpen: true,
+                      title: t('chores:view.previousNote'),
+                      content: chore.notes,
                   onClose: () => setNoteViewerConfig({ isOpen: false }),
                 })
               }}
@@ -800,7 +804,7 @@ const ChoreView = () => {
         {chore.subTasks && chore.subTasks.length > 0 && (
           <Box sx={{ p: 0, m: 0, mb: 2 }}>
             <Typography level='title-md' sx={{ mb: 1 }}>
-              Subtasks :
+              {t('chores:view.subtasks')} :
             </Typography>
             <Sheet
               variant='plain'
@@ -838,7 +842,7 @@ const ChoreView = () => {
         variant='soft'
       >
         <Typography level='body-md' sx={{ mb: 1 }}>
-          Task Actions
+          {t('chores:view.taskActions')}
         </Typography>
 
         <FormControl size='sm'>
@@ -862,7 +866,7 @@ const ChoreView = () => {
                   alignItems: 'center',
                 }}
               >
-                Add a note
+                {t('chores:view.addNote')}
               </Typography>
             }
           />
@@ -870,13 +874,13 @@ const ChoreView = () => {
         {note !== null && (
           <Box sx={{ mb: 1 }}>
             <Typography level='body-sm' sx={{ mb: 1 }}>
-              Additional Notes:
+              {t('chores:view.additionalNotes')}:
             </Typography>
             <RichTextEditor
               value={note || ''}
               onChange={setNote}
               entityType={'chore_completion_note'}
-              placeholder='Add a note about the completion...'
+              placeholder={t('chores:view.completionNotePlaceholder')}
             />
           </Box>
         )}
@@ -910,7 +914,7 @@ const ChoreView = () => {
                   alignItems: 'center',
                 }}
               >
-                Set custom completion time
+                {t('chores:view.setCustomCompletionTime')}
               </Typography>
             }
           />
@@ -944,7 +948,7 @@ const ChoreView = () => {
               color='primary'
               startDecorator={<Unarchive />}
             >
-              Unarchive
+              {t('common:actions.unarchive')}
             </Button>
           </Box>
         ) : (
@@ -982,7 +986,7 @@ const ChoreView = () => {
                         flex: 1,
                       }}
                     >
-                      Approve
+                      {t('common:actions.approve')}
                     </Button>
                     <Button
                       fullWidth
@@ -994,7 +998,7 @@ const ChoreView = () => {
                         flex: 1,
                       }}
                     >
-                      <Box>Reject</Box>
+                      <Box>{t('common:actions.reject')}</Box>
                     </Button>
                   </>
                 ) : (
@@ -1005,7 +1009,7 @@ const ChoreView = () => {
                     color='neutral'
                     startDecorator={<HourglassEmpty />}
                   >
-                    <Box>Pending Approval</Box>
+                    <Box>{t('chores:view.pendingApproval')}</Box>
                   </Button>
                 )
               ) : (
@@ -1025,8 +1029,8 @@ const ChoreView = () => {
                     sx={{
                       flex: 4,
                     }}
-                  >
-                    <Box>Mark as done</Box>
+                    >
+                    <Box>{t('chores:view.markAsDone')}</Box>
                   </Button>
 
                   <Button
@@ -1035,12 +1039,12 @@ const ChoreView = () => {
                     onClick={() => {
                       setConfirmModelConfig({
                         isOpen: true,
-                        title: 'Skip Task',
+                        title: t('chores:view.skipTask'),
 
-                        message: 'Are you sure you want to skip this task?',
+                        message: t('chores:view.skipTaskConfirm'),
 
-                        confirmText: 'Skip',
-                        cancelText: 'Cancel',
+                        confirmText: t('common:actions.skip'),
+                        cancelText: t('common:actions.cancel'),
                         onClose: confirmed => {
                           if (confirmed) {
                             handleSkippingTask()
@@ -1058,8 +1062,8 @@ const ChoreView = () => {
                     sx={{
                       flex: 1,
                     }}
-                  >
-                    <Box>Skip</Box>
+                    >
+                    <Box>{t('common:actions.skip')}</Box>
                   </Button>
                 </>
               )}
@@ -1069,10 +1073,11 @@ const ChoreView = () => {
                 level='body-sm'
                 sx={{ color: 'warning.plainColor', textAlign: 'center', mb: 1 }}
               >
-                Available to complete starting{' '}
-                {moment(chore.nextDueDate)
-                  .subtract(chore.completionWindow, 'hours')
-                  .format('MM/DD/YYYY hh:mm A')}
+                {t('chores:view.availableToCompleteStarting', {
+                  date: moment(chore.nextDueDate)
+                    .subtract(chore.completionWindow, 'hours')
+                    .format('MM/DD/YYYY hh:mm A'),
+                })}
               </Typography>
             )}
             {/* Timer Button - Show split button when timer is active, regular button otherwise */}

@@ -32,6 +32,7 @@ import {
   Typography,
 } from '@mui/joy'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useImpersonateUser } from '../../contexts/ImpersonateUserContext'
 import { useUserProfile } from '../../queries/UserQueries'
 import { CompleteSubTask } from '../../utils/Fetcher'
@@ -67,6 +68,7 @@ function SortableItem({
   const [expanded, setExpanded] = useState(false)
   const [showAddSubtask, setShowAddSubtask] = useState(false)
   const [newSubtask, setNewSubtask] = useState('')
+  const { t } = useTranslation(['common'])
 
   // Find child tasks
   const childTasks = allTasks.filter(t => t.parentId === task.id)
@@ -232,7 +234,7 @@ function SortableItem({
                 color='primary'
                 size='sm'
                 onClick={handleAddSubtaskClick}
-                title='Add subtask'
+                title={t('common:subtasks.addSubtask')}
               >
                 <PlaylistAdd />
               </IconButton>
@@ -263,7 +265,7 @@ function SortableItem({
         >
           <Box sx={{ display: 'flex', width: '100%', gap: 1 }}>
             <Input
-              placeholder='Add new subtask...'
+              placeholder={t('common:subtasks.addNewSubtask')}
               value={newSubtask}
               onChange={e => setNewSubtask(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -312,6 +314,7 @@ const SubTasks = ({
   shouldFocus = false,
 }) => {
   const [newTask, setNewTask] = useState('')
+  const { t } = useTranslation(['common'])
   const { data: userProfile } = useUserProfile()
   const { impersonatedUser } = useImpersonateUser()
 
@@ -505,7 +508,7 @@ const SubTasks = ({
               <ListItem sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Input
                   autoFocus={shouldFocus}
-                  placeholder='Add new task...'
+                  placeholder={t('common:subtasks.addNewTask')}
                   value={newTask}
                   onChange={e => setNewTask(e.target.value)}
                   onKeyPress={handleKeyPress}

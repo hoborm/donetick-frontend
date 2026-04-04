@@ -178,7 +178,7 @@ const SignupView = () => {
             required
             fullWidth
             id='username'
-            label='Username'
+            label={t('common:labels.username')}
             name='username'
             autoComplete='username'
             autoFocus
@@ -200,7 +200,7 @@ const SignupView = () => {
             required
             fullWidth
             id='email'
-            label='email'
+            label={t('common:labels.email')}
             name='email'
             autoComplete='email'
             value={email}
@@ -220,7 +220,7 @@ const SignupView = () => {
             required
             fullWidth
             name='password'
-            label='Password'
+            label={t('common:labels.password')}
             type='password'
             id='password'
             placeholder={t('auth:placeholders.passwordRange')}
@@ -241,7 +241,7 @@ const SignupView = () => {
             required
             fullWidth
             name='displayName'
-            label='Display Name'
+            label={t('common:labels.displayName')}
             id='displayName'
             placeholder={t('common:placeholders.enterDisplayName')}
             value={displayName}
@@ -269,7 +269,7 @@ const SignupView = () => {
           >
             {t('common:actions.signup')}
           </Button>
-          <Divider> or </Divider>
+          <Divider>{t('common:actions.or')}</Divider>
           <Button
             size='lg'
             onClick={() => {

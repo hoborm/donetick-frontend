@@ -37,6 +37,7 @@ import {
 } from '@mui/joy'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import {
   useChoreTimer,
@@ -51,6 +52,7 @@ import { getSafeBottom } from '../../utils/SafeAreaUtils'
 import LoadingComponent from '../components/Loading'
 
 const TimerDetails = () => {
+  const { t } = useTranslation(['timer', 'common'])
   const { choreId } = useParams()
   const [timerData, setTimerData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -219,23 +221,23 @@ const TimerDetails = () => {
         {
           onSuccess: () => {
             showSuccess({
-              title: 'Session updated',
-              message: 'Timer session has been updated successfully.',
+              title: t('timer:details.updatedTitle'),
+              message: t('timer:details.updatedMessage'),
             })
             refetchTimer()
             cancelEditingSession(sessionId)
           },
           onError: () => {
             showError({
-              title: 'Failed to update session',
-              message: 'Please try again.',
+              title: t('timer:details.updateFailedTitle'),
+              message: t('timer:details.tryAgain'),
             })
           },
         },
       )
     } catch (error) {
       showError({
-        title: 'Error updating session',
+        title: t('timer:details.errorUpdatingTitle'),
         message: error.message,
       })
     } finally {
@@ -249,15 +251,15 @@ const TimerDetails = () => {
     startChore.mutate(choreId, {
       onSuccess: () => {
         showSuccess({
-          title: 'Timer Started',
-          message: 'Work session has been started successfully.',
+          title: t('timer:details.startTitle'),
+          message: t('timer:details.startMessage'),
         })
         refetchTimer()
       },
       onError: () => {
         showError({
-          title: 'Failed to start timer',
-          message: 'Please try again.',
+          title: t('timer:details.startFailedTitle'),
+          message: t('timer:details.tryAgain'),
         })
       },
       onSettled: () => {
@@ -271,15 +273,15 @@ const TimerDetails = () => {
     pauseChore.mutate(choreId, {
       onSuccess: () => {
         showSuccess({
-          title: 'Timer Paused',
-          message: 'Work session has been paused.',
+          title: t('timer:details.pauseTitle'),
+          message: t('timer:details.pauseMessage'),
         })
         refetchTimer()
       },
       onError: () => {
         showError({
-          title: 'Failed to pause timer',
-          message: 'Please try again.',
+          title: t('timer:details.pauseFailedTitle'),
+          message: t('timer:details.tryAgain'),
         })
       },
       onSettled: () => {
@@ -343,8 +345,10 @@ const TimerDetails = () => {
   const handleDeleteSession = sessionIndex => {
     // For now, just show an alert since we'd need to implement session deletion API
     showError({
-      title: 'Delete Session',
-      message: `Session #${sessionIndex + 1} deletion would be implemented here`,
+      title: t('timer:details.deleteSessionTitle'),
+      message: t('timer:details.deleteSessionMessage', {
+        index: sessionIndex + 1,
+      }),
     })
   }
 
@@ -358,13 +362,13 @@ const TimerDetails = () => {
 
       {loading && (
         <Alert color='neutral' sx={{ mb: 2 }}>
-          Loading timer data...
+          {t('timer:details.loading')}
         </Alert>
       )}
 
       {!loading && !timerData && (
         <Alert color='warning' sx={{ mb: 2 }}>
-          No timer data found for this chore.
+          {t('timer:details.notFound')}
         </Alert>
       )}
 
@@ -415,7 +419,7 @@ const TimerDetails = () => {
                           color: 'text.primary',
                         }}
                       >
-                        Active Work
+                        {t('timer:details.activeWork')}
                       </Typography>
                     </Box>
                     <Box>
@@ -470,7 +474,7 @@ const TimerDetails = () => {
                           color: 'text.primary',
                         }}
                       >
-                        Break Time
+                        {t('timer:details.breakTime')}
                       </Typography>
                     </Box>
                     <Box>
@@ -525,7 +529,7 @@ const TimerDetails = () => {
                           color: 'text.primary',
                         }}
                       >
-                        Sessions
+                        {t('timer:details.sessions')}
                       </Typography>
                     </Box>
                     <Box>
@@ -580,7 +584,7 @@ const TimerDetails = () => {
                           color: 'text.primary',
                         }}
                       >
-                        Total Time
+                        {t('timer:details.totalTime')}
                       </Typography>
                     </Box>
                     <Box>
@@ -614,12 +618,18 @@ const TimerDetails = () => {
                   level='body-sm'
                   sx={{ color: 'text.secondary', fontWeight: 'medium' }}
                 >
-                  Work vs Break Distribution
+                  {t('timer:details.workVsBreak')}
                 </Typography>
                 <Typography level='body-sm' sx={{ color: 'text.tertiary' }}>
                   {calculateCurrentActiveDuration() > 0
-                    ? `${Math.round((calculateCurrentActiveDuration() / calculateTotalDuration()) * 100)}% active`
-                    : 'No active time yet'}
+                    ? t('timer:details.activePercent', {
+                        percent: Math.round(
+                          (calculateCurrentActiveDuration() /
+                            calculateTotalDuration()) *
+                            100,
+                        ),
+                      })
+                    : t('timer:details.noActiveTime')}
                 </Typography>
               </Box>
               <Box
@@ -648,7 +658,7 @@ const TimerDetails = () => {
                   level='body-sm'
                   sx={{ color: 'text.secondary', fontWeight: 'medium', mb: 2 }}
                 >
-                  Activity Timeline
+                  {t('timer:details.activityTimeline')}
                 </Typography>
 
                 {timerData &&
@@ -716,7 +726,13 @@ const TimerDetails = () => {
                                   zIndex: 1,
                                 },
                               }}
-                              title={`Session ${index + 1}: ${formatDuration(sessionDuration)} ${isOngoing ? '(ongoing)' : ''}`}
+                              title={t('timer:details.sessionTooltip', {
+                                index: index + 1,
+                                duration: formatDuration(sessionDuration),
+                                status: isOngoing
+                                  ? t('timer:details.ongoing')
+                                  : '',
+                              })}
                             />
                           )
                         })
@@ -756,7 +772,7 @@ const TimerDetails = () => {
                             level='body-xs'
                             sx={{ color: 'text.tertiary' }}
                           >
-                            Active Work
+                            {t('timer:details.activeWork')}
                           </Typography>
                         </Box>
                         <Box
@@ -780,7 +796,7 @@ const TimerDetails = () => {
                             level='body-xs'
                             sx={{ color: 'text.tertiary' }}
                           >
-                            Break Time
+                            {t('timer:details.breakTime')}
                           </Typography>
                         </Box>
                         {isTimerRunning() && (
@@ -805,7 +821,7 @@ const TimerDetails = () => {
                               level='body-xs'
                               sx={{ color: 'text.tertiary' }}
                             >
-                              Live Session
+                              {t('timer:details.liveSession')}
                             </Typography>
                           </Box>
                         )}
@@ -819,14 +835,18 @@ const TimerDetails = () => {
                           level='body-xs'
                           sx={{ color: 'text.tertiary' }}
                         >
-                          Started: {moment(timerData.startTime).format('HH:mm')}
+                          {t('timer:details.started', {
+                            time: moment(timerData.startTime).format('HH:mm'),
+                          })}
                         </Typography>
                         {timerData.endTime && (
                           <Typography
                             level='body-xs'
                             sx={{ color: 'text.tertiary' }}
                           >
-                            Ended: {moment(timerData.endTime).format('HH:mm')}
+                            {t('timer:details.ended', {
+                              time: moment(timerData.endTime).format('HH:mm'),
+                            })}
                           </Typography>
                         )}
                         {!timerData.endTime && (
@@ -834,17 +854,21 @@ const TimerDetails = () => {
                             level='body-xs'
                             sx={{ color: 'success.500' }}
                           >
-                            Now: {moment(currentTime).format('HH:mm')}
+                            {t('timer:details.now', {
+                              time: moment(currentTime).format('HH:mm'),
+                            })}
                           </Typography>
                         )}
                         <Typography
                           level='body-xs'
                           sx={{ color: 'text.tertiary' }}
                         >
-                          Active:{' '}
-                          {calculateCurrentActiveDuration() > 0
-                            ? `${Math.round((calculateCurrentActiveDuration() / calculateTotalDuration()) * 100)}%`
-                            : '0%'}
+                          {t('timer:details.activeShort', {
+                            percent:
+                              calculateCurrentActiveDuration() > 0
+                                ? `${Math.round((calculateCurrentActiveDuration() / calculateTotalDuration()) * 100)}%`
+                                : '0%',
+                          })}
                         </Typography>
                       </Box>
                     </Box>
@@ -852,8 +876,7 @@ const TimerDetails = () => {
                 ) : (
                   <Alert color='neutral' variant='soft' sx={{ py: 2 }}>
                     <Typography level='body-sm'>
-                      No activity timeline available. Start working to see your
-                      activity pattern.
+                      {t('timer:details.noTimeline')}
                     </Typography>
                   </Alert>
                 )}
@@ -871,7 +894,9 @@ const TimerDetails = () => {
                 mb: 2,
               }}
             >
-              <Typography level='h4'>Session Breakdown</Typography>
+              <Typography level='h4'>
+                {t('timer:details.sessionBreakdown')}
+              </Typography>
               {!editingSessions[timerData.id] && (
                 <Button
                   variant='outlined'
@@ -880,7 +905,7 @@ const TimerDetails = () => {
                   onClick={() => startEditingSession()}
                   size='sm'
                 >
-                  Edit
+                  {t('common:actions.edit')}
                 </Button>
               )}
               {editingSessions[timerData.id] && (
@@ -890,7 +915,7 @@ const TimerDetails = () => {
                     onClick={() => cancelEditingSession(timerData.id)}
                     size='sm'
                   >
-                    Cancel
+                    {t('common:actions.cancel')}
                   </Button>
                   <Button
                     variant='solid'
@@ -899,7 +924,7 @@ const TimerDetails = () => {
                     loading={loading}
                     size='sm'
                   >
-                    Save Changes
+                    {t('timer:details.saveChanges')}
                   </Button>
                 </Box>
               )}
@@ -914,7 +939,9 @@ const TimerDetails = () => {
                       level='body-md'
                       sx={{ fontWeight: 'bold', mb: 2 }}
                     >
-                      Work Sessions ({timerData.pauseLog.length})
+                      {t('timer:details.workSessions', {
+                        count: timerData.pauseLog.length,
+                      })}
                     </Typography>
 
                     <SwipeableList type={ListType.IOS} fullSwipe={false}>
@@ -977,7 +1004,7 @@ const TimerDetails = () => {
                                           level='body-xs'
                                           sx={{ mt: 0.5 }}
                                         >
-                                          Edit
+                                          {t('common:actions.edit')}
                                         </Typography>
                                       </Box>
                                     </SwipeAction>
@@ -1003,7 +1030,7 @@ const TimerDetails = () => {
                                           level='body-xs'
                                           sx={{ mt: 0.5 }}
                                         >
-                                          Delete
+                                          {t('common:actions.delete')}
                                         </Typography>
                                       </Box>
                                     </SwipeAction>
@@ -1067,7 +1094,7 @@ const TimerDetails = () => {
                                         variant='soft'
                                         sx={{ fontSize: '0.7rem' }}
                                       >
-                                        Live
+                                        {t('timer:details.live')}
                                       </Chip>
                                     )}
                                     {/* User chip showing who started the session */}
@@ -1102,7 +1129,7 @@ const TimerDetails = () => {
                                           >
                                             {sessionUser?.displayName ||
                                               sessionUser?.name ||
-                                              'Unknown'}
+                                              t('timer:details.unknownUser')}
                                           </Chip>
                                         ) : null
                                       })()}
@@ -1125,7 +1152,10 @@ const TimerDetails = () => {
                                       mb: 0.2,
                                     }}
                                   >
-                                    Session #{pauseIndex + 1} • {sessionDate}
+                                    {t('timer:details.sessionLabel', {
+                                      index: pauseIndex + 1,
+                                      date: sessionDate,
+                                    })}
                                   </Typography>
                                   <Typography
                                     level='body-xs'
@@ -1135,7 +1165,9 @@ const TimerDetails = () => {
                                     }}
                                   >
                                     {startTime}{' '}
-                                    {endTime ? `→ ${endTime}` : '→ ongoing'}
+                                    {endTime
+                                      ? `→ ${endTime}`
+                                      : t('timer:details.ongoingArrow')}
                                   </Typography>
                                 </Box>
 
@@ -1164,7 +1196,7 @@ const TimerDetails = () => {
 
                 {(!timerData.pauseLog || timerData.pauseLog.length === 0) && (
                   <Alert color='neutral'>
-                    No work sessions found for this timer.
+                    {t('timer:details.noSessions')}
                   </Alert>
                 )}
               </Box>
@@ -1189,7 +1221,7 @@ const TimerDetails = () => {
                       }}
                     >
                       <Typography level='body-md' sx={{ fontWeight: 'bold' }}>
-                        Sessions
+                        {t('timer:details.editSessions')}
                       </Typography>
                       <Button
                         size='sm'
@@ -1197,7 +1229,7 @@ const TimerDetails = () => {
                         startDecorator={<Add />}
                         onClick={() => addPauseLogEntry(timerData.id)}
                       >
-                        Add Session
+                        {t('timer:details.addSession')}
                       </Button>
                     </Box>
 
@@ -1220,7 +1252,10 @@ const TimerDetails = () => {
                               level='body-md'
                               sx={{ fontWeight: 'bold' }}
                             >
-                              Session #{pauseIndex + 1}
+                              {t('timer:details.sessionLabel', {
+                                index: pauseIndex + 1,
+                                date: '',
+                              }).replace(' • ', '')}
                             </Typography>
                             <Button
                               size='sm'
@@ -1247,7 +1282,7 @@ const TimerDetails = () => {
                                 level='body-sm'
                                 sx={{ fontWeight: 'bold', mb: 1 }}
                               >
-                                Start Time
+                                {t('timer:details.startTime')}
                               </Typography>
                               <Input
                                 type='datetime-local'
@@ -1270,7 +1305,7 @@ const TimerDetails = () => {
                                 level='body-sm'
                                 sx={{ fontWeight: 'bold', mb: 1 }}
                               >
-                                End Time
+                                {t('timer:details.endTime')}
                               </Typography>
                               <Input
                                 type='datetime-local'
@@ -1293,7 +1328,7 @@ const TimerDetails = () => {
                                 }
                               />
                               <FormHelperText>
-                                Leave empty if session is ongoing
+                                {t('timer:details.leaveEmptyOngoing')}
                               </FormHelperText>
                             </FormControl>
 
@@ -1302,7 +1337,7 @@ const TimerDetails = () => {
                                 level='body-sm'
                                 sx={{ fontWeight: 'bold', mb: 1 }}
                               >
-                                Duration (Auto-calculated)
+                                {t('timer:details.durationAuto')}
                               </Typography>
                               <Typography
                                 level='body-sm'
@@ -1388,7 +1423,11 @@ const TimerDetails = () => {
               },
             },
           }}
-          title={isTimerRunning() ? 'Pause Timer' : 'Start Timer'}
+          title={
+            isTimerRunning()
+              ? t('timer:details.pauseButton')
+              : t('timer:details.startButton')
+          }
         >
           {isTimerRunning() ? (
             <PauseCircle sx={{ fontSize: 24 }} />

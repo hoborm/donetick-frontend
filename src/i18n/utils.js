@@ -1,9 +1,11 @@
 export const LANGUAGE_STORAGE_KEY = 'language'
 export const DEFAULT_LANGUAGE = 'en'
-export const SUPPORTED_LANGUAGES = ['en', 'de']
+export const SUPPORTED_LANGUAGES = ['en', 'de', 'es', 'pt']
 export const LANGUAGE_OPTIONS = [
   { code: 'en', locale: 'en-US' },
   { code: 'de', locale: 'de-DE' },
+  { code: 'es', locale: 'es-ES' },
+  { code: 'pt', locale: 'pt-PT' },
 ]
 
 export const normalizeLanguage = value => {

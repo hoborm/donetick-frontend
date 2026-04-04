@@ -905,7 +905,7 @@ const MyChores = () => {
           />
 
           <SortAndGrouping
-            title='Group by'
+            title={t('chores:main.groupBy')}
             k={'icon-menu-group-by'}
             icon={<Sort />}
             selectedItem={selectedChoreSection}
@@ -957,10 +957,10 @@ const MyChores = () => {
             onClick={toggleViewMode}
             title={
               viewMode === 'default'
-                ? 'Switch to Compact View'
+                ? t('chores:main.viewCompact')
                 : viewMode === 'compact'
-                  ? 'Switch to Calendar View'
-                  : 'Switch to Card View'
+                  ? t('chores:main.viewCalendar')
+                  : t('chores:main.viewCard')
             }
           >
             {viewMode === 'default' ? (
@@ -1136,7 +1136,7 @@ const MyChores = () => {
                           updateFilterUrl(null, null)
                         }}
                       >
-                        Cancel All Filters
+                        {t('chores:main.cancelAllFilters')}
                       </MenuItem>
                     ))}
                 </Menu>
@@ -1245,7 +1245,7 @@ const MyChores = () => {
               updateFilterUrl(null, null)
             }}
           >
-            Additional Filter: {searchFilter}
+            {t('chores:main.additionalFilter', { filter: searchFilter })}
           </Chip>
         )}
         {/* Show "Nothing scheduled" when appropriate based on current view mode */}
@@ -1271,7 +1271,7 @@ const MyChores = () => {
                 }}
               />
               <Typography level='title-md' gutterBottom>
-                Nothing scheduled
+                {t('chores:main.nothingScheduled')}
               </Typography>
               {chores.length > 0 && (
                 <>
@@ -1287,7 +1287,7 @@ const MyChores = () => {
                     variant='outlined'
                     color='neutral'
                   >
-                    Reset filters
+                    {t('chores:main.resetFilters')}
                   </Button>
                 </>
               )}
@@ -1610,7 +1610,7 @@ const MyChores = () => {
             onClick={() => {
               Navigate(`/chores/create`)
             }}
-            title='Create new chore (Cmd+C)'
+            title={t('chores:main.createNewChoreShortcut')}
           >
             <Add />
             <KeyboardShortcutHint

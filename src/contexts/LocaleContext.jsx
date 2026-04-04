@@ -2,6 +2,8 @@ import { Preferences } from '@capacitor/preferences'
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import moment from 'moment'
 import 'moment/locale/de'
+import 'moment/locale/es'
+import 'moment/locale/pt'
 import i18n from '../i18n'
 import {
   DEFAULT_LANGUAGE,

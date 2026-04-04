@@ -30,7 +30,7 @@ const LanguageSettings = () => {
   }
 
   return (
-    <SettingsLayout title='Language'>
+    <SettingsLayout title={t('language.title')}>
       <div className='grid gap-4'>
         <Typography level='body-md'>{t('language.description')}</Typography>
         <FormControl>
@@ -48,6 +48,12 @@ const LanguageSettings = () => {
             </Button>
             <Button loading={isUpdating && language !== 'de'} value='de'>
               {t('language.options.de')}
+            </Button>
+            <Button loading={isUpdating && language !== 'es'} value='es'>
+              {t('language.options.es')}
+            </Button>
+            <Button loading={isUpdating && language !== 'pt'} value='pt'>
+              {t('language.options.pt')}
             </Button>
           </ToggleButtonGroup>
         </FormControl>

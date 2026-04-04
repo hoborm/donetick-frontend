@@ -144,7 +144,7 @@ const ProfileSettings = () => {
   // Helper to resolve photoURL with baseURL if needed
 
   return (
-    <SettingsLayout title='Profile Settings'>
+    <SettingsLayout title={t('settings:pages.profile.title')}>
       <div className='grid gap-4 py-4' id='profile'>
         <Typography level='body-md'>{t('settings:profile.description')}</Typography>
         <Card
