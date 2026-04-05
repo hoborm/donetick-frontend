@@ -296,7 +296,7 @@ const ChoreEdit = () => {
 
       if (dueDateOnly) {
         const combinedDateTime = moment(`${dueDateOnly}T${defaultTime}`).format(
-          'YYYY-MM-DDTHH:mm:00',
+          'YYYY-MM-DDTHH:mm:59',
         )
         setDueDate(combinedDateTime)
 
@@ -314,7 +314,7 @@ const ChoreEdit = () => {
       if (dueDateOnly) {
         const endOfDay = moment(dueDateOnly)
           .endOf('day')
-          .format('YYYY-MM-DDTHH:mm:00')
+          .format('YYYY-MM-DDTHH:mm:ss')
         setDueDate(endOfDay)
       }
     }
@@ -563,7 +563,7 @@ const ChoreEdit = () => {
       const today = moment(new Date()).format('YYYY-MM-DD')
       setDueDateOnly(today)
       // Default to end of day
-      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'))
+      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'))
       setUseCustomTime(false)
       setDueTime(null)
     }
@@ -1112,7 +1112,7 @@ const ChoreEdit = () => {
                     const today = moment(new Date()).format('YYYY-MM-DD')
                     setDueDateOnly(today)
                     setDueDate(
-                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'),
+                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'),
                     )
                     setUseCustomTime(false)
                     setDueTime(null)
@@ -1644,7 +1644,10 @@ const ChoreEdit = () => {
       >
         {choreId > 0 && (
           <Dropdown>
-            <ButtonGroup variant='outlined' color={isActive ? 'danger' : 'neutral'}>
+            <ButtonGroup
+              variant='outlined'
+              color={isActive ? 'danger' : 'neutral'}
+            >
               <Button
                 onClick={() => {
                   isActive
@@ -1656,16 +1659,18 @@ const ChoreEdit = () => {
               </Button>
               <MenuButton
                 slots={{ root: IconButton }}
-                slotProps={{ root: { variant: 'outlined', color: isActive ? 'danger' : 'neutral' } }}
+                slotProps={{
+                  root: {
+                    variant: 'outlined',
+                    color: isActive ? 'danger' : 'neutral',
+                  },
+                }}
               >
                 <ArrowDropDown />
               </MenuButton>
             </ButtonGroup>
             <Menu placement='top-end'>
-              <MenuItem
-                color='danger'
-                onClick={handleDelete}
-              >
+              <MenuItem color='danger' onClick={handleDelete}>
                 Delete
               </MenuItem>
             </Menu>
