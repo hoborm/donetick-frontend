@@ -1,14 +1,15 @@
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
-import ThumbDownIcon from '@mui/icons-material/ThumbDown'
-import TimelapseIcon from '@mui/icons-material/Timelapse'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 
 import {
-  Block,
+  AccessTime,
   Check,
   EventBusy,
   Group,
+  HourglassEmpty,
+  Redo,
+  RunningWithErrors,
+  Schedule,
+  ThumbDown,
   Timeline,
   Toll,
 } from '@mui/icons-material'
@@ -43,7 +44,9 @@ const groupByDate = history => {
   const aggregated = {}
   for (let i = 0; i < history.length; i++) {
     const item = history[i]
-    const date = new Date(item.performedAt).toLocaleDateString()
+    const date = new Date(
+      item.performedAt || item.updatedAt,
+    ).toLocaleDateString()
     if (!aggregated[date]) {
       aggregated[date] = []
     }
@@ -56,17 +59,21 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
   const getStatusIcon = status => {
     switch (status) {
       case 0:
-        return <TimelapseIcon color='primary' />
+        return <AccessTime color='primary' />
       case 1:
         return <Check color='success' />
       case 2:
-        return <Block color='warning' />
+        return <Redo color='warning' />
       case 3:
-        return <HourglassEmptyIcon color='action' />
+        return <HourglassEmpty color='neutral' />
       case 4:
-        return <ThumbDownIcon color='error' />
+        return <ThumbDown color='error' />
+      case 5:
+        return <RunningWithErrors color='error' />
+      case 6:
+        return <Schedule color='warning' />
       default:
-        return <CheckCircleIcon color='success' />
+        return <Check color='success' />
     }
   }
 
@@ -121,6 +128,10 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
 const ChoreHistoryTimeline = ({ history }) => {
   const groupedHistory = groupByDate(history)
 
+  const sortedEntries = Object.entries(groupedHistory).sort(
+    ([a], [b]) => new Date(b) - new Date(a),
+  )
+
   return (
     <Container sx={{ p: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -146,7 +157,9 @@ const ChoreHistoryTimeline = ({ history }) => {
               <>
                 <ChoreHistoryItem
                   key={record.id}
-                  time={new Date(record.performedAt).toLocaleTimeString([], {
+                  time={new Date(
+                    record.performedAt || record.updatedAt,
+                  ).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
