@@ -15,9 +15,7 @@ export const useChoreFilters = ({
   )
 
   const projectFilteredChores = useMemo(() => {
-    if (!selectedProject) return chores
-
-    if (selectedProject.id === 'default') {
+    if (!selectedProject || selectedProject.id === 'default') {
       return chores.filter(chore => !chore.projectId)
     }
 

@@ -221,15 +221,12 @@ const MyChores = () => {
     let choresToGroup = chores
     if (tempFilter || activeFilterId) {
       choresToGroup = customFilteredChores
-    } else if (selectedProject) {
-      // Otherwise, use project-filtered chores for section grouping
-      if (selectedProject.id === 'default') {
-        // Default project: only show tasks without a projectId
-        choresToGroup = chores.filter(chore => !chore.projectId)
-      } else {
-        // Other projects: use the existing filter function
-        choresToGroup = filterByProject(chores, selectedProject.id)
-      }
+    } else if (!selectedProject || selectedProject.id === 'default') {
+      // No project selected or default project: only show tasks without a projectId
+      choresToGroup = chores.filter(chore => !chore.projectId)
+    } else {
+      // Specific project: use the existing filter function
+      choresToGroup = filterByProject(chores, selectedProject.id)
     }
 
     const sections = ChoresGrouper(
