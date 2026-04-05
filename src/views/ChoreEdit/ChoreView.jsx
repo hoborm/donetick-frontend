@@ -391,7 +391,7 @@ const ChoreView = () => {
   }
 
   const handleRejectChore = () => {
-    RejectChore(choreId).then(response => {
+    RejectChore(choreId, null).then(response => {
       if (response.ok) {
         response.json().then(data => {
           setChore(data.res)

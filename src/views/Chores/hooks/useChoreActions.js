@@ -229,7 +229,7 @@ export const useChoreActions = ({
 
         case 'reject':
           try {
-            const response = await RejectChore(chore.id)
+            const response = await RejectChore(chore.id, null)
             if (response.ok) {
               const data = await response.json()
               updateChoreInState(data.res, 'rejected')
