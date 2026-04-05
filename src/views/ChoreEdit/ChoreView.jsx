@@ -195,10 +195,12 @@ const ChoreView = () => {
     MarkChoreComplete(
       choreId,
       impersonatedUser
-        ? { completedBy: impersonatedUser.userId, note }
-        : { note },
-      completedDate,
-      null,
+        ? {
+            completedBy: impersonatedUser.userId,
+            completedDate: completedDate,
+            notes: note,
+          }
+        : { completedDate: completedDate, notes: note },
     )
       .then(resp => {
         if (resp.ok) {

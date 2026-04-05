@@ -261,7 +261,7 @@ const ChoresOverview = () => {
                     size='sm'
                     // sx={{ borderRadius: '50%' }}
                     onClick={() => {
-                      MarkChoreComplete(chore.id, null, null, null).then(
+                      MarkChoreComplete(chore.id, null).then(
                         response => {
                           if (response.ok) {
                             response.json().then(data => {
@@ -324,7 +324,7 @@ const ChoresOverview = () => {
             alert('Please select a performer')
             return
           }
-          MarkChoreComplete(choreId, null, date, activeUserId).then(
+          MarkChoreComplete(choreId, { completedBy: activeUserId }, date).then(
             response => {
               if (response.ok) {
                 response.json().then(data => {
