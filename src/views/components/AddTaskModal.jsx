@@ -598,6 +598,7 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
 
     const chore = {
       name: taskTitle,
+      description: description,
       assignees: finalAssignees,
       dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       assignedTo: finalAssignedTo,
