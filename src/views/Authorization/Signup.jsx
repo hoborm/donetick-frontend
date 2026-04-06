@@ -243,7 +243,7 @@ const SignupView = () => {
             name='displayName'
             label='Display Name'
             id='displayName'
-            placeholder='Confirm password'
+            placeholder='How others see your name'
             value={displayName}
             onChange={e => {
               setDisplayNameError(null)
