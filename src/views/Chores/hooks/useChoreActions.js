@@ -154,6 +154,18 @@ export const useChoreActions = ({
     async (action, chore, extraData = {}) => {
       switch (action) {
         case 'complete':
+          // 1. Instantly hide the chore from the UI and Cache
+          setChores(prev => prev.filter(c => c.id !== chore.id))
+          setFilteredChores(prev => prev.filter(c => c.id !== chore.id))
+
+          queryClient.setQueriesData({ queryKey: ['chores'] }, oldData => {
+            if (!oldData || !oldData.res) return oldData;
+            return {
+              ...oldData,
+              res: oldData.res.filter(c => c.id !== chore.id),
+            }
+          });
+
           try {
             const response = await MarkChoreComplete(
               chore.id,
@@ -162,10 +174,36 @@ export const useChoreActions = ({
               null,
             )
             if (response.ok) {
-              const data = await response.json()
-              updateChoreInState(data.res, 'completed')
+              // 2. Show the success notification with Undo
+              showSuccess({
+                message: 'Task completed',
+                undoAction: async () => {
+                  try {
+                    const undoResponse = await UndoChoreAction(chore.id)
+                    if (undoResponse.ok) {
+                      refetchChores()
+                      showUndo({
+                        title: 'Undo Successful',
+                        message: 'Task completion has been undone.',
+                      })
+                    } else throw new Error('Failed to undo')
+                  } catch (error) {
+                    showError({
+                      title: 'Undo Failed',
+                      message: 'Unable to undo the action. Please try again.',
+                    })
+                  }
+                },
+              })
+
+              // 3. Fetch the fresh active list from the server silently
+              // (This brings in the next occurrence if recurring, without showing the completed one)
+              queryClient.invalidateQueries({ queryKey: ['chores'] })
+            } else {
+              refetchChores() // Network failed, revert to truth
             }
           } catch (error) {
+            refetchChores() // Network failed, revert to truth
             if (error?.queued) {
               showError({
                 title: 'Update Failed',
