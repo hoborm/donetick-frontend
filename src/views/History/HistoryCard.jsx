@@ -8,6 +8,7 @@ import {
   Person,
   Redo,
   RunningWithErrors,
+  Schedule,
   ThumbDown,
   Timelapse,
   Toll,
@@ -18,7 +19,7 @@ import { useLocalization } from '../../contexts/LocalizationContext'
 import { TASK_COLOR } from '../../utils/Colors.jsx'
 
 const getCompletedChip = historyEntry => {
-  if (historyEntry.status === 0 || historyEntry.status === 5) {
+  if (historyEntry.status === 0 || historyEntry.status === 5 || historyEntry.status === 6) {
     return null
   }
 
@@ -128,6 +129,7 @@ const HistoryCard = ({
       3: { icon: <HourglassEmpty />, color: 'neutral' }, // Pending Approval
       4: { icon: <ThumbDown />, color: 'danger' }, // Rejected
       5: { icon: <RunningWithErrors />, color: 'danger' }, // Missed
+      6: { icon: <Schedule />, color: 'warning' }, // Rescheduled
     }
 
     const config = statusMap[historyEntry.status] || statusMap[1]
@@ -194,7 +196,9 @@ const HistoryCard = ({
                           ? 'Rejected'
                           : historyEntry.status === 5
                             ? 'Missed'
-                            : 'Completed'}
+                            : historyEntry.status === 6
+                              ? 'Rescheduled'
+                              : 'Completed'}
               </Typography>
 
               <Chip size='sm' startDecorator={<EventNote />}>

@@ -1,18 +1,23 @@
-import { Add, HorizontalRule, Save } from '@mui/icons-material'
+import { Add, ArrowDropDown, HorizontalRule, Save } from '@mui/icons-material'
 import {
   Avatar,
   Box,
   Button,
+  ButtonGroup,
   Card,
   Checkbox,
   Chip,
   Container,
   Divider,
+  Dropdown,
   FormControl,
   FormHelperText,
+  IconButton,
   Input,
   List,
   ListItem,
+  Menu,
+  MenuButton,
   MenuItem,
   Option,
   Radio,
@@ -291,7 +296,7 @@ const ChoreEdit = () => {
 
       if (dueDateOnly) {
         const combinedDateTime = moment(`${dueDateOnly}T${defaultTime}`).format(
-          'YYYY-MM-DDTHH:mm:00',
+          'YYYY-MM-DDTHH:mm:59',
         )
         setDueDate(combinedDateTime)
 
@@ -309,7 +314,7 @@ const ChoreEdit = () => {
       if (dueDateOnly) {
         const endOfDay = moment(dueDateOnly)
           .endOf('day')
-          .format('YYYY-MM-DDTHH:mm:00')
+          .format('YYYY-MM-DDTHH:mm:ss')
         setDueDate(endOfDay)
       }
     }
@@ -558,7 +563,7 @@ const ChoreEdit = () => {
       const today = moment(new Date()).format('YYYY-MM-DD')
       setDueDateOnly(today)
       // Default to end of day
-      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'))
+      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'))
       setUseCustomTime(false)
       setDueTime(null)
     }
@@ -1107,7 +1112,7 @@ const ChoreEdit = () => {
                     const today = moment(new Date()).format('YYYY-MM-DD')
                     setDueDateOnly(today)
                     setDueDate(
-                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'),
+                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'),
                     )
                     setUseCustomTime(false)
                     setDueTime(null)
@@ -1189,7 +1194,7 @@ const ChoreEdit = () => {
                 checked={completionWindow !== -1}
                 onChange={e => {
                   if (e.target.checked) {
-                    setCompletionWindow(3600) // default 1 hour in seconds
+                    setCompletionWindow(1) // default 1 hour in seconds
                   } else {
                     setCompletionWindow(-1)
                   }
@@ -1203,29 +1208,38 @@ const ChoreEdit = () => {
             </FormControl>
 
             {completionWindow !== -1 && (
-              <Box
-                sx={{
-                  mt: 1,
-                  ml: 4,
-                  display: 'flex',
-                  gap: 1,
-                  alignItems: 'center',
-                }}
-              >
-                <DurationInput
-                  value={completionWindow}
-                  onChange={setCompletionWindow}
-                  size='sm'
-                  minValue={0}
-                />
-                <Typography level='body-sm'>before due date</Typography>
-              </Box>
+              <Card variant='outlined'>
+                <Box
+                  sx={{
+                    mt: 0,
+                    ml: 4,
+                  }}
+                >
+                  <Typography level='body-sm'>Hours:</Typography>
+                  <Input
+                    type='number'
+                    value={completionWindow}
+                    sx={{ maxWidth: 100 }}
+                    slotProps={{
+                      input: {
+                        min: 0,
+                        max: 24 * 7,
+                      },
+                    }}
+                    placeholder='Hours'
+                    onChange={e => {
+                      setCompletionWindow(parseInt(e.target.value))
+                    }}
+                  />
+                </Box>
+              </Card>
             )}
 
             {/* Expires After (Deadline) */}
-            <FormControl sx={{ mt: 2 }}>
+            {/* <FormControl sx={{ mt: 2 }}>
               <Checkbox
                 checked={deadlineOffset !== -1}
+                disabled={isRolling}
                 onChange={e => {
                   if (e.target.checked) {
                     setDeadlineOffset(86400) // default 1 day in seconds
@@ -1237,9 +1251,11 @@ const ChoreEdit = () => {
                 label='Set a deadline'
               />
               <FormHelperText>
-                Task will be considered expired after the due date
+                {isRolling && !['once', 'no_repeat'].includes(frequencyType)
+                  ? 'Deadline is not available when scheduling from completion date'
+                  : 'Task will be considered expired after the due date'}
               </FormHelperText>
-            </FormControl>
+            </FormControl> */}
 
             {deadlineOffset !== -1 && (
               <Box
@@ -1286,7 +1302,10 @@ const ChoreEdit = () => {
                 <Radio
                   overlay
                   checked={isRolling}
-                  onClick={() => setIsRolling(true)}
+                  onClick={() => {
+                    setIsRolling(true)
+                    setDeadlineOffset(-1)
+                  }}
                   label='Reschedule from completion date'
                 />
                 <FormHelperText>
@@ -1624,39 +1643,38 @@ const ChoreEdit = () => {
         }}
       >
         {choreId > 0 && (
-          <>
-            {isActive ? (
-              <Button
-                color='danger'
-                variant='outlined'
-                onClick={() => {
-                  archiveChore.mutate(choreId)
-                }}
-              >
-                Archive
-              </Button>
-            ) : (
-              <Button
-                color='neutral'
-                variant='outlined'
-                onClick={() => {
-                  unarchiveChore.mutate(choreId)
-                }}
-              >
-                Unarchive
-              </Button>
-            )}
-            <Button
-              color='danger'
-              variant='solid'
-              onClick={() => {
-                // confirm before deleting:
-                handleDelete()
-              }}
+          <Dropdown>
+            <ButtonGroup
+              variant='outlined'
+              color={isActive ? 'danger' : 'neutral'}
             >
-              Delete
-            </Button>
-          </>
+              <Button
+                onClick={() => {
+                  isActive
+                    ? archiveChore.mutate(choreId)
+                    : unarchiveChore.mutate(choreId)
+                }}
+              >
+                {isActive ? 'Archive' : 'Unarchive'}
+              </Button>
+              <MenuButton
+                slots={{ root: IconButton }}
+                slotProps={{
+                  root: {
+                    variant: 'outlined',
+                    color: isActive ? 'danger' : 'neutral',
+                  },
+                }}
+              >
+                <ArrowDropDown />
+              </MenuButton>
+            </ButtonGroup>
+            <Menu placement='top-end'>
+              <MenuItem color='danger' onClick={handleDelete}>
+                Delete
+              </MenuItem>
+            </Menu>
+          </Dropdown>
         )}
         <Button
           color='neutral'

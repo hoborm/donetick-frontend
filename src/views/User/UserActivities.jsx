@@ -1,14 +1,16 @@
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
-import ThumbDownIcon from '@mui/icons-material/ThumbDown'
-import TimelapseIcon from '@mui/icons-material/Timelapse'
 import { Cell, Pie, PieChart, Tooltip } from 'recharts'
 
 import {
-  Block,
+  AccessTime,
   Check,
   EventBusy,
+  EventNote,
   Group,
+  HourglassEmpty,
+  Redo,
+  RunningWithErrors,
+  Schedule,
+  ThumbDown,
   Timeline,
   Toll,
 } from '@mui/icons-material'
@@ -34,6 +36,7 @@ import React, { useEffect, useState } from 'react'
 
 import { useLocalization } from '../../contexts/LocalizationContext'
 import { useChores, useChoresHistory } from '../../queries/ChoreQueries'
+import NoteViewerModal from '../Modals/Inputs/NoteViewerModal'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries.jsx'
 import { ChoresGrouper } from '../../utils/Chores'
 import { COLORS, TASK_COLOR } from '../../utils/Colors.jsx'
@@ -44,7 +47,9 @@ const groupByDate = history => {
   const aggregated = {}
   for (let i = 0; i < history.length; i++) {
     const item = history[i]
-    const date = new Date(item.performedAt).toLocaleDateString()
+    const date = new Date(
+      item.performedAt || item.updatedAt,
+    ).toLocaleDateString()
     if (!aggregated[date]) {
       aggregated[date] = []
     }
@@ -53,21 +58,25 @@ const groupByDate = history => {
   return aggregated
 }
 
-const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
+const ChoreHistoryItem = ({ time, name, points, status, performer, notes, onViewNote }) => {
   const getStatusIcon = status => {
     switch (status) {
       case 0:
-        return <TimelapseIcon color='primary' />
+        return <AccessTime color='primary' />
       case 1:
         return <Check color='success' />
       case 2:
-        return <Block color='warning' />
+        return <Redo color='warning' />
       case 3:
-        return <HourglassEmptyIcon color='action' />
+        return <HourglassEmpty color='neutral' />
       case 4:
-        return <ThumbDownIcon color='error' />
+        return <ThumbDown color='error' />
+      case 5:
+        return <RunningWithErrors color='error' />
+      case 6:
+        return <Schedule color='warning' />
       default:
-        return <CheckCircleIcon color='success' />
+        return <Check color='success' />
     }
   }
 
@@ -114,14 +123,35 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
             {`${points} points`}
           </Chip>
         )}
+        {notes && (
+          <Chip
+            size='sm'
+            variant='soft'
+            color='neutral'
+            startDecorator={<EventNote />}
+            sx={{ cursor: 'pointer' }}
+            onClick={e => {
+              e.stopPropagation()
+              onViewNote?.(notes)
+            }}
+          >
+            Note
+          </Chip>
+        )}
       </Box>
     </Stack>
   )
 }
 
-const ChoreHistoryTimeline = ({ history }) => {
+
+const ChoreHistoryTimeline = ({ history, onViewNote }) => {
   const { fmt } = useLocalization()
+
   const groupedHistory = groupByDate(history)
+
+  const sortedEntries = Object.entries(groupedHistory).sort(
+    ([a], [b]) => new Date(b) - new Date(a),
+  )
 
   return (
     <Container sx={{ p: 2 }}>
@@ -143,10 +173,15 @@ const ChoreHistoryTimeline = ({ history }) => {
               <>
                 <ChoreHistoryItem
                   key={record.id}
-                  time={fmt.time(record.performedAt)}
+
+                  time={fmt.time(
+                    record.performedAt || record.updatedAt,
+                  )}
                   name={record.choreName}
                   points={record.points}
                   status={record.status}
+                  notes={record.notes}
+                  onViewNote={onViewNote}
                 />
               </>
             ))}
@@ -366,6 +401,7 @@ const UserActivites = () => {
   const [selectedHistory, setSelectedHistory] = React.useState([])
   const [enrichedHistory, setEnrichedHistory] = React.useState([])
   const [selectedChart, setSelectedChart] = React.useState('history')
+  const [noteViewerConfig, setNoteViewerConfig] = useState({ isOpen: false })
 
   const [historyPieChartData, setHistoryPieChartData] = React.useState([])
   const [choreDuePieChartData, setChoreDuePieChartData] = React.useState([])
@@ -1066,7 +1102,17 @@ const UserActivites = () => {
           >
             {/* Left Side - Timeline (Mobile: Full width, Desktop: Flexible) */}
             <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
-              <ChoreHistoryTimeline history={selectedHistory} />
+              <ChoreHistoryTimeline
+                history={selectedHistory}
+                onViewNote={notes => {
+                  setNoteViewerConfig({
+                    isOpen: true,
+                    title: 'Note',
+                    content: notes,
+                    onClose: () => setNoteViewerConfig({ isOpen: false }),
+                  })
+                }}
+              />
             </Box>
 
             {/* Right Sidebar - Charts (Mobile: Full width, Desktop: Fixed width + sticky) */}
@@ -1216,6 +1262,7 @@ const UserActivites = () => {
           </Box>
         </>
       )}
+      <NoteViewerModal config={noteViewerConfig} />
     </Container>
   )
 }

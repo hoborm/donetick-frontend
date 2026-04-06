@@ -76,9 +76,9 @@ const ActivityItem = ({ activity, members, onViewNote }) => {
         icon: <Timelapse />,
       }
     } else if (activity.status === 1) {
-      const wasOnTime = moment(activity.performedAt).isSameOrBefore(
-        moment(activity.dueDate),
-      )
+      const wasOnTime =
+        !activity.dueDate ||
+        moment(activity.performedAt).isSameOrBefore(moment(activity.dueDate))
 
       if (wasOnTime) {
         return {

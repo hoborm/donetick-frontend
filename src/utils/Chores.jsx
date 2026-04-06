@@ -16,6 +16,8 @@ export const ChoreHistoryStatus = Object.freeze({
   SKIPPED: 2,
   PENDING_APPROVAL: 3,
   REJECTED: 4,
+  MISSED: 5,
+  RESCHEDULED: 6,
 })
 export const ChoreStatus = Object.freeze({
   INACTIVE: 0,
@@ -324,13 +326,16 @@ export const notInCompletionWindow = chore => {
     chore.completionWindow &&
     chore.completionWindow > -1 &&
     chore.nextDueDate &&
-    moment() < moment(chore.nextDueDate).add(-chore.completionWindow, 'seconds')
+    moment() < moment(chore.nextDueDate).add(-chore.completionWindow, 'hours')
   )
 }
 export const ChoreFilters = userId => ({
   anyone: () => true,
   assigned_to_me: chore => {
     return chore.assignedTo && chore.assignedTo === userId
+  },
+  available_for_me: chore => {
+    return chore.assignedTo === null || chore.assignedTo === userId
   },
   assigned_to_others: chore => {
     return chore.assignedTo && chore.assignedTo !== userId

@@ -673,7 +673,6 @@ const ChoreView = () => {
             color='neutral'
             variant='plain'
             fullWidth
-            disabled={chore.isActive === false}
             onClick={() => {
               navigate(`/chores/${choreId}/history`)
             }}
@@ -692,7 +691,6 @@ const ChoreView = () => {
             color='neutral'
             variant='plain'
             fullWidth
-            disabled={chore.isActive === false}
             sx={{
               // top right of the card:
               flexDirection: 'column',
@@ -1018,9 +1016,7 @@ const ChoreView = () => {
                     size='lg'
                     onClick={handleTaskCompletion}
                     disabled={
-                      notInCompletionWindow(chore) ||
-                      (chore.lastCompletedDate !== null &&
-                        chore.frequencyType === 'once')
+                      notInCompletionWindow(chore) || chore.isActive === false
                     }
                     color='success'
                     startDecorator={<Check />}
@@ -1050,9 +1046,7 @@ const ChoreView = () => {
                       })
                     }}
                     disabled={
-                      notInCompletionWindow(chore) ||
-                      (chore.lastCompletedDate !== null &&
-                        chore.frequencyType === 'once')
+                      notInCompletionWindow(chore) || chore.isActive === false
                     }
                     startDecorator={<SwitchAccessShortcut />}
                     sx={{
@@ -1071,7 +1065,7 @@ const ChoreView = () => {
               >
                 Available to complete starting{' '}
                 {moment(chore.nextDueDate)
-                  .subtract(chore.completionWindow, 'seconds')
+                  .subtract(chore.completionWindow, 'hours')
                   .format('MM/DD/YYYY hh:mm A')}
               </Typography>
             )}
@@ -1081,8 +1075,7 @@ const ChoreView = () => {
                 disabled={
                   (chore.status === ChoreStatus.PAUSED &&
                     notInCompletionWindow(chore)) ||
-                  (chore.lastCompletedDate !== null &&
-                    chore.frequencyType === 'once')
+                  chore.isActive === false
                 }
                 chore={chore}
                 onAction={action => {
@@ -1108,9 +1101,7 @@ const ChoreView = () => {
                 variant='soft'
                 color='success'
                 disabled={
-                  notInCompletionWindow(chore) ||
-                  (chore.lastCompletedDate !== null &&
-                    chore.frequencyType === 'once')
+                  notInCompletionWindow(chore) || chore.isActive === false
                 }
                 startDecorator={<PlayArrow />}
                 sx={{
