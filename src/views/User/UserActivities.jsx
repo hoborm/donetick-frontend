@@ -4,6 +4,7 @@ import {
   AccessTime,
   Check,
   EventBusy,
+  EventNote,
   Group,
   HourglassEmpty,
   Redo,
@@ -34,6 +35,7 @@ import {
 import React, { useEffect, useState } from 'react'
 
 import { useChores, useChoresHistory } from '../../queries/ChoreQueries'
+import NoteViewerModal from '../Modals/Inputs/NoteViewerModal'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries.jsx'
 import { ChoresGrouper } from '../../utils/Chores'
 import { COLORS, TASK_COLOR } from '../../utils/Colors.jsx'
@@ -55,7 +57,7 @@ const groupByDate = history => {
   return aggregated
 }
 
-const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
+const ChoreHistoryItem = ({ time, name, points, status, performer, notes, onViewNote }) => {
   const getStatusIcon = status => {
     switch (status) {
       case 0:
@@ -120,12 +122,27 @@ const ChoreHistoryItem = ({ time, name, points, status, performer }) => {
             {`${points} points`}
           </Chip>
         )}
+        {notes && (
+          <Chip
+            size='sm'
+            variant='soft'
+            color='neutral'
+            startDecorator={<EventNote />}
+            sx={{ cursor: 'pointer' }}
+            onClick={e => {
+              e.stopPropagation()
+              onViewNote?.(notes)
+            }}
+          >
+            Note
+          </Chip>
+        )}
       </Box>
     </Stack>
   )
 }
 
-const ChoreHistoryTimeline = ({ history }) => {
+const ChoreHistoryTimeline = ({ history, onViewNote }) => {
   const groupedHistory = groupByDate(history)
 
   const sortedEntries = Object.entries(groupedHistory).sort(
@@ -166,6 +183,8 @@ const ChoreHistoryTimeline = ({ history }) => {
                   name={record.choreName}
                   points={record.points}
                   status={record.status}
+                  notes={record.notes}
+                  onViewNote={onViewNote}
                 />
               </>
             ))}
@@ -385,6 +404,7 @@ const UserActivites = () => {
   const [selectedHistory, setSelectedHistory] = React.useState([])
   const [enrichedHistory, setEnrichedHistory] = React.useState([])
   const [selectedChart, setSelectedChart] = React.useState('history')
+  const [noteViewerConfig, setNoteViewerConfig] = useState({ isOpen: false })
 
   const [historyPieChartData, setHistoryPieChartData] = React.useState([])
   const [choreDuePieChartData, setChoreDuePieChartData] = React.useState([])
@@ -1085,7 +1105,17 @@ const UserActivites = () => {
           >
             {/* Left Side - Timeline (Mobile: Full width, Desktop: Flexible) */}
             <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
-              <ChoreHistoryTimeline history={selectedHistory} />
+              <ChoreHistoryTimeline
+                history={selectedHistory}
+                onViewNote={notes => {
+                  setNoteViewerConfig({
+                    isOpen: true,
+                    title: 'Note',
+                    content: notes,
+                    onClose: () => setNoteViewerConfig({ isOpen: false }),
+                  })
+                }}
+              />
             </Box>
 
             {/* Right Sidebar - Charts (Mobile: Full width, Desktop: Fixed width + sticky) */}
@@ -1235,6 +1265,7 @@ const UserActivites = () => {
           </Box>
         </>
       )}
+      <NoteViewerModal config={noteViewerConfig} />
     </Container>
   )
 }
