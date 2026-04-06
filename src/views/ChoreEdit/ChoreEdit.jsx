@@ -1,18 +1,23 @@
-import { Add, HorizontalRule, Save } from '@mui/icons-material'
+import { Add, ArrowDropDown, HorizontalRule, Save } from '@mui/icons-material'
 import {
   Avatar,
   Box,
   Button,
+  ButtonGroup,
   Card,
   Checkbox,
   Chip,
   Container,
   Divider,
+  Dropdown,
   FormControl,
   FormHelperText,
+  IconButton,
   Input,
   List,
   ListItem,
+  Menu,
+  MenuButton,
   MenuItem,
   Option,
   Radio,
@@ -291,7 +296,7 @@ const ChoreEdit = () => {
 
       if (dueDateOnly) {
         const combinedDateTime = moment(`${dueDateOnly}T${defaultTime}`).format(
-          'YYYY-MM-DDTHH:mm:00',
+          'YYYY-MM-DDTHH:mm:59',
         )
         setDueDate(combinedDateTime)
 
@@ -309,7 +314,7 @@ const ChoreEdit = () => {
       if (dueDateOnly) {
         const endOfDay = moment(dueDateOnly)
           .endOf('day')
-          .format('YYYY-MM-DDTHH:mm:00')
+          .format('YYYY-MM-DDTHH:mm:ss')
         setDueDate(endOfDay)
       }
     }
@@ -558,7 +563,7 @@ const ChoreEdit = () => {
       const today = moment(new Date()).format('YYYY-MM-DD')
       setDueDateOnly(today)
       // Default to end of day
-      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'))
+      setDueDate(moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'))
       setUseCustomTime(false)
       setDueTime(null)
     }
@@ -1107,7 +1112,7 @@ const ChoreEdit = () => {
                     const today = moment(new Date()).format('YYYY-MM-DD')
                     setDueDateOnly(today)
                     setDueDate(
-                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:00'),
+                      moment(today).endOf('day').format('YYYY-MM-DDTHH:mm:59'),
                     )
                     setUseCustomTime(false)
                     setDueTime(null)
@@ -1638,39 +1643,38 @@ const ChoreEdit = () => {
         }}
       >
         {choreId > 0 && (
-          <>
-            {isActive ? (
-              <Button
-                color='danger'
-                variant='outlined'
-                onClick={() => {
-                  archiveChore.mutate(choreId)
-                }}
-              >
-                Archive
-              </Button>
-            ) : (
-              <Button
-                color='neutral'
-                variant='outlined'
-                onClick={() => {
-                  unarchiveChore.mutate(choreId)
-                }}
-              >
-                Unarchive
-              </Button>
-            )}
-            <Button
-              color='danger'
-              variant='solid'
-              onClick={() => {
-                // confirm before deleting:
-                handleDelete()
-              }}
+          <Dropdown>
+            <ButtonGroup
+              variant='outlined'
+              color={isActive ? 'danger' : 'neutral'}
             >
-              Delete
-            </Button>
-          </>
+              <Button
+                onClick={() => {
+                  isActive
+                    ? archiveChore.mutate(choreId)
+                    : unarchiveChore.mutate(choreId)
+                }}
+              >
+                {isActive ? 'Archive' : 'Unarchive'}
+              </Button>
+              <MenuButton
+                slots={{ root: IconButton }}
+                slotProps={{
+                  root: {
+                    variant: 'outlined',
+                    color: isActive ? 'danger' : 'neutral',
+                  },
+                }}
+              >
+                <ArrowDropDown />
+              </MenuButton>
+            </ButtonGroup>
+            <Menu placement='top-end'>
+              <MenuItem color='danger' onClick={handleDelete}>
+                Delete
+              </MenuItem>
+            </Menu>
+          </Dropdown>
         )}
         <Button
           color='neutral'

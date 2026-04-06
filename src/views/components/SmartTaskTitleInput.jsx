@@ -213,7 +213,7 @@ const SmartTaskTitleInput = ({
             fontSize: 'inherit',
             lineHeight: 'inherit',
             backgroundColor: 'transparent',
-            color: mode === 'dark' ? '#cbd5e1' : '#1a202c',
+            color: 'transparent',
             caretColor: mode === 'dark' ? '#fff' : '#000',
           }}
         />

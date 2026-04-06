@@ -473,7 +473,7 @@ export const useChoreActions = ({
   )
 
   const handleBulkComplete = useCallback(async () => {
-    const selectedData = getSelectedChoresData()
+    const selectedData = getSelectedChoresData(chores)
     if (selectedData.length === 0) return
 
     setConfirmModelConfig({
@@ -533,7 +533,7 @@ export const useChoreActions = ({
   }, [getSelectedChoresData, impersonatedUser, showSuccess, showError, refetchChores, clearSelection, setConfirmModelConfig])
 
   const handleBulkArchive = useCallback(async () => {
-    const selectedData = getSelectedChoresData()
+    const selectedData = getSelectedChoresData(chores)
     if (selectedData.length === 0) return
 
     setConfirmModelConfig({
@@ -595,7 +595,7 @@ export const useChoreActions = ({
   }, [getSelectedChoresData, archiveChore, setChores, setFilteredChores, showSuccess, showError, refetchChores, clearSelection, setConfirmModelConfig])
 
   const handleBulkDelete = useCallback(async () => {
-    const selectedData = getSelectedChoresData()
+    const selectedData = getSelectedChoresData(chores)
     if (selectedData.length === 0) return
 
     setConfirmModelConfig({
@@ -655,7 +655,7 @@ export const useChoreActions = ({
   }, [getSelectedChoresData, chores, filteredChores, setChores, setFilteredChores, showSuccess, showError, refetchChores, clearSelection, setConfirmModelConfig])
 
   const handleBulkSkip = useCallback(async () => {
-    const selectedData = getSelectedChoresData()
+    const selectedData = getSelectedChoresData(chores)
     if (selectedData.length === 0) return
 
     setConfirmModelConfig({

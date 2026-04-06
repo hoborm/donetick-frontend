@@ -1,5 +1,14 @@
 import { Add, EditNotifications } from '@mui/icons-material'
-import { Box, Button, Input, Option, Select, Typography } from '@mui/joy'
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormHelperText,
+  Input,
+  Option,
+  Select,
+  Typography,
+} from '@mui/joy'
 import { FormControl } from '@mui/material'
 import * as chrono from 'chrono-node'
 import moment from 'moment'
@@ -92,6 +101,9 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
   const [hasNotifications, setHasNotifications] = useState(false)
   const [hasDeadline, setHasDeadline] = useState(false)
   const [deadlineOffset, setDeadlineOffset] = useState(-1)
+  const [dueDateOnly, setDueDateOnly] = useState(null)
+  const [dueTime, setDueTime] = useState(null)
+  const [useCustomTime, setUseCustomTime] = useState(false)
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
   const [projectId, setProjectId] = useState(getInitialProject())
 
@@ -135,7 +147,11 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
         !dueDate
       ) {
         // add due date:
-        setDueDate(moment().add(1, 'day').format('YYYY-MM-DDTHH:00:00'))
+        const tomorrow = moment().add(1, 'day')
+        setDueDateOnly(tomorrow.format('YYYY-MM-DD'))
+        setDueDate(tomorrow.endOf('day').format('YYYY-MM-DDTHH:mm:59'))
+        setUseCustomTime(false)
+        setDueTime(null)
         setShowKeyboardShortcuts(false)
       }
       // Enter key to create task
@@ -379,9 +395,24 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
         setFrequencyHumanReadable(repeat.name)
       }
 
+      const syncDueDateStates = parsedDate => {
+        const m = moment(parsedDate)
+        const dateOnly = m.format('YYYY-MM-DD')
+        const timeOnly = m.format('HH:mm')
+        setDueDateOnly(dateOnly)
+        setDueDate(m.format('YYYY-MM-DDTHH:mm:ss'))
+        if (timeOnly !== '23:59') {
+          setUseCustomTime(true)
+          setDueTime(timeOnly)
+        } else {
+          setUseCustomTime(false)
+          setDueTime(null)
+        }
+      }
+
       let dueDateHighlight = null
       if (dueDateParsed.result) {
-        setDueDate(moment(dueDateParsed.result).format('YYYY-MM-DDTHH:mm:ss'))
+        syncDueDateStates(dueDateParsed.result)
         dueDateHighlight = dueDateParsed.highlight[0]
       }
 
@@ -390,9 +421,7 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
         // we need to reparse the date again to get the correct due date:
         const dueDateParsedAgain = parseDueDate(sentence, chrono)
         if (dueDateParsedAgain.result) {
-          setDueDate(
-            moment(dueDateParsedAgain.result).format('YYYY-MM-DDTHH:mm:ss'),
-          )
+          syncDueDateStates(dueDateParsedAgain.result)
         }
       }
 
@@ -472,6 +501,47 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
     processText,
   ])
 
+  const handleDueDateChange = e => {
+    const dateValue = e.target.value
+    setDueDateOnly(dateValue)
+    if (useCustomTime && dueTime) {
+      setDueDate(
+        moment(`${dateValue}T${dueTime}`).format('YYYY-MM-DDTHH:mm:00'),
+      )
+    } else {
+      setDueDate(moment(dateValue).endOf('day').format('YYYY-MM-DDTHH:mm:ss'))
+    }
+  }
+
+  const handleDueTimeChange = e => {
+    const timeValue = e.target.value
+    setDueTime(timeValue)
+    if (dueDateOnly) {
+      setDueDate(
+        moment(`${dueDateOnly}T${timeValue}`).format('YYYY-MM-DDTHH:mm:00'),
+      )
+    }
+  }
+
+  const handleUseCustomTimeChange = checked => {
+    setUseCustomTime(checked)
+    if (checked) {
+      const defaultTime = dueTime || '18:00'
+      setDueTime(defaultTime)
+      if (dueDateOnly) {
+        setDueDate(
+          moment(`${dueDateOnly}T${defaultTime}`).format('YYYY-MM-DDTHH:mm:00'),
+        )
+      }
+    } else {
+      if (dueDateOnly) {
+        setDueDate(
+          moment(dueDateOnly).endOf('day').format('YYYY-MM-DDTHH:mm:ss'),
+        )
+      }
+    }
+  }
+
   const handleEnterPressed = () => {
     createChore()
   }
@@ -495,6 +565,9 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
     setProjectId(getInitialProject())
     setHasDeadline(false)
     setDeadlineOffset(-1)
+    setDueDateOnly(null)
+    setDueTime(null)
+    setUseCustomTime(false)
   }
 
   const createChore = () => {
@@ -525,6 +598,7 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
 
     const chore = {
       name: taskTitle,
+      description: description,
       assignees: finalAssignees,
       dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       assignedTo: finalAssignedTo,
@@ -780,7 +854,11 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
             variant='plain'
             size='sm'
             onClick={() => {
-              setDueDate(moment().add(1, 'day').format('YYYY-MM-DDTHH:00:00'))
+              const tomorrow = moment().add(1, 'day')
+              setDueDateOnly(tomorrow.format('YYYY-MM-DD'))
+              setDueDate(tomorrow.endOf('day').format('YYYY-MM-DDTHH:mm:ss'))
+              setUseCustomTime(false)
+              setDueTime(null)
             }}
             endDecorator={
               showKeyboardShortcuts && <KeyboardShortcutHint shortcut='B' />
@@ -870,11 +948,30 @@ const TaskInput = ({ autoFocus, onChoreUpdate, isModalOpen, onClose }) => {
           <FormControl>
             <Typography level='body-sm'>Due Date</Typography>
             <Input
-              type='datetime-local'
-              value={dueDate}
-              onChange={e => setDueDate(e.target.value)}
-              sx={{ width: '100%', fontSize: '16px' }}
+              type='date'
+              value={dueDateOnly || ''}
+              onChange={handleDueDateChange}
             />
+            <Checkbox
+              size='sm'
+              checked={useCustomTime}
+              onChange={e => handleUseCustomTimeChange(e.target.checked)}
+              label='Set a specific time'
+              sx={{ mt: 1 }}
+            />
+            <FormHelperText>
+              {useCustomTime
+                ? 'Task will be due at the specified time'
+                : 'Task will be due at the end of the day (11:59 PM)'}
+            </FormHelperText>
+            {useCustomTime && (
+              <Input
+                type='time'
+                value={dueTime || '18:00'}
+                onChange={handleDueTimeChange}
+                sx={{ maxWidth: 200, mt: 1 }}
+              />
+            )}
           </FormControl>
         )}
       </Box>

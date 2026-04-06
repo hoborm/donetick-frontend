@@ -25,8 +25,8 @@ export const getDueDateChipText = (nextDueDate, chore) => {
   const dueDate = moment(nextDueDate)
   const diff = moment(nextDueDate).diff(moment(), 'hours')
 
-  // if seconds and minutes set to 59, treat as no time (date only)
-  if (dueDate.seconds() === 59 && dueDate.minutes() === 59) {
+  // if time is 23:59:59, treat as end-of-day (date only, no specific time)
+  if (dueDate.hours() === 23 && dueDate.minutes() === 59 && dueDate.seconds() === 59) {
     if (diff < 0) {
       // For overdue dates, show calendar format for recent dates
       const absDiff = Math.abs(diff)

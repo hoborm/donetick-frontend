@@ -121,7 +121,7 @@ const ChoreHistory = () => {
       {
         icon: <Checklist />,
         text: 'All Completed',
-        subtext: `${histories.filter(h => h.status === ChoreHistoryStatus.COMPLETED).length} times`,
+        subtext: `${histories.filter(h => h.status === ChoreHistoryStatus.COMPLETED || h.status === ChoreHistoryStatus.SKIPPED).length} times`,
       },
       {
         icon: <TrendingUp />,

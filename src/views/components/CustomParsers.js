@@ -722,8 +722,16 @@ export const parseDueDate = (inputSentence, chrono) => {
     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
     .trim()
 
+  // If no specific time was mentioned, set to end of day (23:59:59)
+  // to indicate the date has no specific time tied to it (same convention as ChoreEdit)
+  let resultDate = dueDateMatch.start.date()
+  if (!dueDateMatch.start.isCertain('hour')) {
+    resultDate = new Date(resultDate)
+    resultDate.setHours(23, 59, 59, 0)
+  }
+
   return {
-    result: dueDateMatch.start.date(),
+    result: resultDate,
     highlight: [
       {
         text: fullHighlightText,

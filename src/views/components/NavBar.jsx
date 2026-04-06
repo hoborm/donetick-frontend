@@ -171,6 +171,7 @@ const NavBar = () => {
       '/login',
       '/auth/oauth2',
       '/forgot-password',
+      '/password/update',
       '/login/settings',
       '/welcome',
     ].includes(location.pathname)
