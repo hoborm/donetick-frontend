@@ -34,6 +34,7 @@ import {
 } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
 
+import { useLocalization } from '../../contexts/LocalizationContext'
 import { useChores, useChoresHistory } from '../../queries/ChoreQueries'
 import NoteViewerModal from '../Modals/Inputs/NoteViewerModal'
 import { useCircleMembers, useUserProfile } from '../../queries/UserQueries.jsx'
@@ -142,7 +143,10 @@ const ChoreHistoryItem = ({ time, name, points, status, performer, notes, onView
   )
 }
 
+
 const ChoreHistoryTimeline = ({ history, onViewNote }) => {
+  const { fmt } = useLocalization()
+
   const groupedHistory = groupByDate(history)
 
   const sortedEntries = Object.entries(groupedHistory).sort(
@@ -161,12 +165,7 @@ const ChoreHistoryTimeline = ({ history, onViewNote }) => {
       {Object.entries(groupedHistory).map(([date, items]) => (
         <Box key={date} sx={{ mb: 4 }}>
           <Typography level='title-sm' sx={{ mb: 0.5 }}>
-            {new Date(date).toLocaleDateString([], {
-              weekday: 'long',
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })}
+            {fmt.date(date)}
           </Typography>
           <Divider />
           <Stack spacing={1}>
@@ -174,12 +173,10 @@ const ChoreHistoryTimeline = ({ history, onViewNote }) => {
               <>
                 <ChoreHistoryItem
                   key={record.id}
-                  time={new Date(
+
+                  time={fmt.time(
                     record.performedAt || record.updatedAt,
-                  ).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  )}
                   name={record.choreName}
                   points={record.points}
                   status={record.status}
