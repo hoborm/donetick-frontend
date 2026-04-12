@@ -161,7 +161,9 @@ export const getRecurrentChipText = chore => {
       return result
     } else {
       let freqData = metadata
-      const months = freqData.months.map(m => moment().month(m).format('MMM'))
+      const months = [...freqData.months]
+        .sort((a, b) => allMonths.indexOf(a) - allMonths.indexOf(b))
+        .map(m => moment().month(m).format('MMM'))
       return `${chore.frequency}${dayOfMonthSuffix(
         chore.frequency,
       )} of ${months.join(', ')}`
