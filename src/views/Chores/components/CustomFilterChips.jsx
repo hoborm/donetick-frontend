@@ -6,7 +6,15 @@ import {
   Star,
   StarBorder,
 } from '@mui/icons-material'
-import { Box, Chip, Menu, MenuItem, Tooltip, Typography } from '@mui/joy'
+import {
+  Box,
+  Chip,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+  IconButton,
+} from '@mui/joy'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getTextColorFromBackgroundColor } from '../../../utils/Colors'
@@ -107,6 +115,7 @@ const CustomFilterChips = ({
                   transition: 'all 0.2s ease',
                   px: 1.0,
                   py: 0.5,
+                  height: 32,
 
                   opacity: hasWarning ? 0.7 : isActive ? 1 : 0.85,
                   ...(hasCustomColor && {
@@ -189,10 +198,12 @@ const CustomFilterChips = ({
         )
       })}
 
-      <Chip
+      <IconButton
         variant='outlined'
-        size='lg'
-        sx={{ cursor: 'pointer', minWidth: 'auto', px: 0.8 }}
+        size='sm'
+        sx={{
+          borderRadius: 24,
+        }}
         onClick={e => {
           e.preventDefault()
           e.stopPropagation()
@@ -200,7 +211,7 @@ const CustomFilterChips = ({
         }}
       >
         <Settings />
-      </Chip>
+      </IconButton>
 
       <Menu
         anchorEl={menuAnchor}
