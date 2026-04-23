@@ -160,6 +160,8 @@ export const useChoreActions = ({
               impersonatedUser
                 ? { completedBy: impersonatedUser.userId }
                 : null,
+              null,
+              null,
             )
             if (response.ok) {
               const data = await response.json()
@@ -393,8 +395,9 @@ export const useChoreActions = ({
           ? {
               completedBy: impersonatedUser.userId,
               completedDate: new Date(newDate).toISOString(),
-            }
-        
+            }: null,
+            null,
+            null
       ).then(response => {
         if (response.ok) {
           response.json().then(data => {

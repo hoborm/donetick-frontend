@@ -143,7 +143,7 @@ const GetChoreDetailById = id => {
     headers: HEADERS(),
   })
 }
-const MarkChoreComplete = (id, { completedBy, completedDate, notes }) => {
+const MarkChoreComplete = (id, completedBy, completedDate, notes) => {
   var markChoreURL = `/chores/${id}/do`
   const body = {}
   if (completedDate) {

@@ -416,7 +416,8 @@ export const useMarkChoreComplete = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ choreId, body }) => MarkChoreComplete(choreId, body),
+    mutationFn: ({ choreId, completedBy, completedDate, notes }) =>
+      MarkChoreComplete(choreId, completedBy, completedDate, notes),
     onSuccess: (data, { choreId }) => {
       queryClient.invalidateQueries(['chores'])
       queryClient.invalidateQueries(['choreHistory', choreId])
